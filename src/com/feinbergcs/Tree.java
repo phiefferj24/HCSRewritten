@@ -2,11 +2,13 @@ package com.feinbergcs;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.UUID;
 
 public class Tree extends Sprite {
     private double speed = 1;
 
     public Tree(int x, int y, int width, int height, String image) {
+        id = UUID.randomUUID();
         this.x = x;
         this.y = y;
         this.width = width;
@@ -22,16 +24,19 @@ public class Tree extends Sprite {
 
     @Override
     public String toString() {
-        return "[" + x + "," + y + "," + width + "," + height + "," + image + "]";
+        return "[" + id + ";" + x + ";" + y + ";" + width + ";" + height + ";" + image + ";" + angle + "]";
     }
 
     @Override
     public void updateToString(String info) {
-        String[] split = info.split(",");
-        x = Integer.parseInt(split[0]);
-        y = Integer.parseInt(split[1]);
-        width = Integer.parseInt(split[2]);
-        height = Integer.parseInt(split[3]);
-        image = split[4];
+        if(info.length() < 2) return;
+        String[] split = info.substring(1, info.length() - 1).split(";");
+        id = UUID.fromString(split[0]);
+        x = Integer.parseInt(split[1]);
+        y = Integer.parseInt(split[2]);
+        width = Integer.parseInt(split[3]);
+        height = Integer.parseInt(split[4]);
+        image = split[5];
+        angle = Double.parseDouble(split[6]);
     }
 }
