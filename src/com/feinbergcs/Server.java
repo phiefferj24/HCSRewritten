@@ -9,15 +9,6 @@ public class Server {
     public static void main(String[] args) {
         Listener l = new Listener(9000);
         l.start();
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        String line;
-        try {
-            while ((line = in.readLine()) != null) {
-                l.send(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public static class Listener extends Thread {
@@ -35,7 +26,7 @@ public class Server {
             while (true) {
                 try {
                     Socket socket = serverSocket.accept();
-                    ServerThread serverThread = new ServerThread(socket);
+                    ServerThread serverThread = new ServerThread(socket, this);
                     serverThread.start();
                     serverThreads.add(serverThread);
                 } catch (IOException e) {
@@ -48,12 +39,18 @@ public class Server {
                 serverThread.send(message);
             }
         }
+        public void onMessage(String message) {
+            System.out.println(message);
+            send(message);
+        }
     }
     public static class ServerThread extends Thread {
         private Socket socket;
         private BufferedReader in;
         private PrintWriter out;
-        public ServerThread(Socket socket) {
+        private Listener listener;
+        public ServerThread(Socket socket, Listener listener) {
+            this.listener = listener;
             this.socket = socket;
             try {
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -70,6 +67,7 @@ public class Server {
                         break;
                     }
                     System.out.println("Recieved: " + input);
+                    listener.onMessage(input);
                 }
             } catch (IOException e) {
                 e.printStackTrace();

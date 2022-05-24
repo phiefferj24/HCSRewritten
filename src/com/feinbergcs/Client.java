@@ -7,6 +7,8 @@ import java.awt.image.BufferedImage;
 import java.net.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.UUID;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Client {
     public static ArrayList<Integer> downKeys = new ArrayList<>();
@@ -14,6 +16,8 @@ public class Client {
     public static int clickY = 0;
     public static int mouseX = 0;
     public static int mouseY = 0;
+    public static UUID playerID;
+    public static LinkedBlockingQueue<String> messages = new LinkedBlockingQueue<>();
     public static void main(String[] args) {
         ArrayList<Sprite> sprites = new ArrayList<Sprite>();
         Client client = new Client();
@@ -23,7 +27,11 @@ public class Client {
         Display d = new Display(1280, 720, "Client", new Display.Callback() {
             @Override
             public void paintComponent(Graphics g) {
-                for (Sprite sprite : sprites) {
+                int count = 0;
+                for (int i = 0; i < sprites.size(); i++) {
+                    Sprite sprite = sprites.get(i);
+                    count++;
+                    System.out.println("Painting sprite " + count);
                     drawPlayerImage(g, loadImage(sprite.getImage()), sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
                 }
             }
@@ -47,14 +55,43 @@ public class Client {
         Thread t = new Thread(d);
         t.start();
         sprites.add(new Player(0, 0, 150, 150, "/player.png"));
+        playerID = sprites.get(0).getId();
         double time = System.currentTimeMillis();
         while(true) {
             double delta = System.currentTimeMillis() - time;
             time = System.currentTimeMillis();
             mouseX = (int) d.getMouseX();
             mouseY = (int) d.getMouseY();
+            StringBuilder message = new StringBuilder();
             for (Sprite sprite : sprites) {
-                sprite.step(delta);
+                if(sprite.getId().equals(playerID)) sprite.step(delta);
+                message.append(sprite.toString()).append(",");
+            }
+            clientThread.send(message.toString());
+            while(messages.isEmpty());
+            String[] messagesa = new String[0];
+            try {
+                messagesa = messages.take().split(",");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            for (int i = 0; i < messagesa.length && !messagesa[i].isEmpty(); i++) {
+                String s = messagesa[i];
+                if (!s.isEmpty()) {
+                    String id = s.substring(1).split(";")[0];
+                    boolean found = false;
+                    for (Sprite sprite : sprites) {
+                        if (sprite.getId().toString().equals(id)) {
+                            found = true;
+                            sprite.updateToString(s);
+                        }
+                    }
+                    if (!found) {
+                        System.out.println("New player: " + s);
+                        sprites.add(new Player(0, 0, 150, 150, "/player.png"));
+                        sprites.get(sprites.size() - 1).updateToString(s);
+                    }
+                }
             }
             try {
                 Thread.sleep(10);
@@ -130,9 +167,10 @@ public class Client {
                     String input = in.readLine();
                     if (input != null) {
                         System.out.println("Recieved: " + input);
+                        messages.put(input);
                     }
                 }
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             } finally {
                 try {

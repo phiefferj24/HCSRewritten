@@ -1,8 +1,17 @@
 package com.feinbergcs;
 
+import java.util.UUID;
+
 public abstract class Sprite {
     public int x, y, width, height;
     public String image;
+    public UUID id;
+    public void setId(UUID id) {
+        this.id = id;
+    }
+    public UUID getId() {
+        return id;
+    }
     public void setImage(String image) {
         this.image = image;
     }
