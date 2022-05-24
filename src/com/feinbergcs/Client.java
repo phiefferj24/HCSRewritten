@@ -19,7 +19,7 @@ public class Client {
             @Override
             public void paintComponent(Graphics g) {
                 for (Sprite sprite : sprites) {
-                    g.drawImage(loadImage(sprite.getImage()), sprite.getX(), sprite.getY(), null);
+                    drawScaledImage(g, loadImage(sprite.getImage()), sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
                 }
             }
 
@@ -38,7 +38,7 @@ public class Client {
         });
         Thread t = new Thread(d);
         t.start();
-        sprites.add(new Player(0, 0, 50, 50, "/circle.png"));
+        sprites.add(new Player(0, 0, 50, 50, "/player.png"));
         double time = System.currentTimeMillis();
         while(true) {
             double delta = System.currentTimeMillis() - time;
@@ -52,6 +52,11 @@ public class Client {
                 e.printStackTrace();
             }
         }
+    }
+
+    private static void drawScaledImage(Graphics g, BufferedImage loadImage, int x, int y, int width, int height) {
+        Image scaled = loadImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        g.drawImage(scaled, x, y, null);
     }
 
     public static BufferedImage loadImage(String path) {
