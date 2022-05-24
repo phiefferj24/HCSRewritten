@@ -4,6 +4,7 @@ import java.util.UUID;
 
 public abstract class Sprite {
     public int x, y, width, height;
+    public double angle;
     public String image;
     public UUID id;
     public void setId(UUID id) {
@@ -41,6 +42,12 @@ public abstract class Sprite {
     }
     public int getHeight() {
         return height;
+    }
+    public void setAngle(double angle) {
+        this.angle = angle;
+    }
+    public double getAngle() {
+        return angle;
     }
     public abstract void step(double deltatime);
     public abstract String toString();

@@ -39,7 +39,7 @@ public class Player extends Sprite {
 
     @Override
     public String toString() {
-        return "[" + id + ";" + x + ";" + y + ";" + width + ";" + height + ";" + image + "]";
+        return "[" + id + ";" + x + ";" + y + ";" + width + ";" + height + ";" + image + ";" + angle + "]";
     }
 
     @Override
@@ -52,5 +52,6 @@ public class Player extends Sprite {
         width = Integer.parseInt(split[3]);
         height = Integer.parseInt(split[4]);
         image = split[5];
+        angle = Double.parseDouble(split[6]);
     }
 }

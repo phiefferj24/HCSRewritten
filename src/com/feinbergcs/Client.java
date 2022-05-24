@@ -31,8 +31,7 @@ public class Client {
                 for (int i = 0; i < sprites.size(); i++) {
                     Sprite sprite = sprites.get(i);
                     count++;
-                    System.out.println("Painting sprite " + count);
-                    drawPlayerImage(g, loadImage(sprite.getImage()), sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
+                    drawPlayerImage(g, loadImage(sprite.getImage()), sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
                 }
             }
 
@@ -64,32 +63,37 @@ public class Client {
             mouseY = (int) d.getMouseY();
             StringBuilder message = new StringBuilder();
             for (Sprite sprite : sprites) {
-                if(sprite.getId().equals(playerID)) sprite.step(delta);
-                message.append(sprite.toString()).append(",");
+                if(sprite.getId().equals(playerID)) {
+                    sprite.setAngle(Math.atan2(mouseY - sprite.getY() - (double)sprite.getHeight() / 2, mouseX - sprite.getX() - (double)sprite.getWidth() / 2));
+                    sprite.step(delta);
+                    message.append(sprite.toString()).append(",");
+                }
             }
             clientThread.send(message.toString());
             while(messages.isEmpty());
-            String[] messagesa = new String[0];
-            try {
-                messagesa = messages.take().split(",");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            for (int i = 0; i < messagesa.length && !messagesa[i].isEmpty(); i++) {
-                String s = messagesa[i];
-                if (!s.isEmpty()) {
-                    String id = s.substring(1).split(";")[0];
-                    boolean found = false;
-                    for (Sprite sprite : sprites) {
-                        if (sprite.getId().toString().equals(id)) {
-                            found = true;
-                            sprite.updateToString(s);
+            while(!messages.isEmpty()) {
+                String[] messagesa = new String[0];
+                try {
+                    messagesa = messages.take().split(",");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                for (int i = 0; i < messagesa.length && !messagesa[i].isEmpty(); i++) {
+                    String s = messagesa[i];
+                    if (!s.isEmpty()) {
+                        String id = s.substring(1).split(";")[0];
+                        boolean found = false;
+                        for (Sprite sprite : sprites) {
+                            if (sprite.getId().toString().equals(id)) {
+                                found = true;
+                                sprite.updateToString(s);
+                            }
                         }
-                    }
-                    if (!found) {
-                        System.out.println("New player: " + s);
-                        sprites.add(new Player(0, 0, 150, 150, "/player.png"));
-                        sprites.get(sprites.size() - 1).updateToString(s);
+                        if (!found) {
+                            System.out.println("New player: " + s);
+                            sprites.add(new Player(0, 0, 150, 150, "/player.png"));
+                            sprites.get(sprites.size() - 1).updateToString(s);
+                        }
                     }
                 }
             }
@@ -101,9 +105,8 @@ public class Client {
         }
     }
 
-    private static void drawPlayerImage(Graphics g, BufferedImage loadImage, int x, int y, int width, int height) {
+    private static void drawPlayerImage(Graphics g, BufferedImage loadImage, int x, int y, int width, int height, double angle) {
         Image scaled = loadImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-        double angle = Math.atan2(mouseY - y - (double)height / 2, mouseX - x - (double)width / 2);
         Image rotated = rotateImageByDegrees(scaled, angle * 180 / Math.PI + 90);
         g.drawImage(rotated, x, y, null);
     }
@@ -166,7 +169,6 @@ public class Client {
                 while (running) {
                     String input = in.readLine();
                     if (input != null) {
-                        System.out.println("Recieved: " + input);
                         messages.put(input);
                     }
                 }
