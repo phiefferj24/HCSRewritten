@@ -2,6 +2,7 @@ package com.feinbergcs;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.net.*;
 import java.io.*;
@@ -9,6 +10,10 @@ import java.util.ArrayList;
 
 public class Client {
     public static ArrayList<Integer> downKeys = new ArrayList<>();
+    public static int clickX = 0;
+    public static int clickY = 0;
+    public static int mouseX = 0;
+    public static int mouseY = 0;
     public static void main(String[] args) {
         ArrayList<Sprite> sprites = new ArrayList<Sprite>();
         Client client = new Client();
@@ -19,7 +24,7 @@ public class Client {
             @Override
             public void paintComponent(Graphics g) {
                 for (Sprite sprite : sprites) {
-                    drawScaledImage(g, loadImage(sprite.getImage()), sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
+                    drawPlayerImage(g, loadImage(sprite.getImage()), sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
                 }
             }
 
@@ -34,7 +39,10 @@ public class Client {
             }
 
             @Override
-            public void mouseMoved(int x, int y) {}
+            public void mouseClicked(int x, int y) {
+                clickX = x;
+                clickY = y;
+            }
         });
         Thread t = new Thread(d);
         t.start();
@@ -43,6 +51,8 @@ public class Client {
         while(true) {
             double delta = System.currentTimeMillis() - time;
             time = System.currentTimeMillis();
+            mouseX = (int) d.getMouseX();
+            mouseY = (int) d.getMouseY();
             for (Sprite sprite : sprites) {
                 sprite.step(delta);
             }
@@ -54,9 +64,30 @@ public class Client {
         }
     }
 
-    private static void drawScaledImage(Graphics g, BufferedImage loadImage, int x, int y, int width, int height) {
+    private static void drawPlayerImage(Graphics g, BufferedImage loadImage, int x, int y, int width, int height) {
         Image scaled = loadImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-        g.drawImage(scaled, x, y, null);
+        double angle = Math.atan2(mouseY - y - (double)height / 2, mouseX - x - (double)width / 2);
+        Image rotated = rotateImageByDegrees(scaled, angle * 180 / Math.PI + 90);
+        g.drawImage(rotated, x, y, null);
+    }
+    private static BufferedImage rotateImageByDegrees(Image img, double angle) {
+        double rads = Math.toRadians(angle);
+        double sin = Math.abs(Math.sin(rads)), cos = Math.abs(Math.cos(rads));
+        int w = img.getWidth(null);
+        int h = img.getHeight(null);
+        int nw = (int) Math.floor(w * cos + h * sin);
+        int nh = (int) Math.floor(h * cos + w * sin);
+        BufferedImage rotated = new BufferedImage(nw, nh, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = rotated.createGraphics();
+        AffineTransform at = new AffineTransform();
+        int x = w / 2;
+        int y = h / 2;
+        at.rotate(rads, x, y);
+        g2d.setTransform(at);
+        g2d.drawImage(img, 0, 0, null);
+        g2d.dispose();
+
+        return rotated;
     }
 
     public static BufferedImage loadImage(String path) {

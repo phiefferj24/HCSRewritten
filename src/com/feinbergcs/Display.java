@@ -15,7 +15,7 @@ public class Display extends JComponent implements KeyListener, MouseListener, R
         void paintComponent(Graphics g);
         void keyPressed(int key);
         void keyReleased(int key);
-        void mouseMoved(int x, int y);
+        void mouseClicked(int x, int y);
 
     }
     private static Map<String, Image> images = new HashMap<String, Image>();
@@ -111,7 +111,7 @@ public class Display extends JComponent implements KeyListener, MouseListener, R
 
             if (mouseX != -1)
             {
-                callback.mouseMoved(mouseX, mouseY);
+                callback.mouseClicked(mouseX, mouseY);
                 mouseX = -1;
                 mouseY = -1;
             }
@@ -153,5 +153,16 @@ public class Display extends JComponent implements KeyListener, MouseListener, R
 
     public void mouseExited(MouseEvent e)
     {
+    }
+
+    public double getMouseX()
+    {
+        Point p = MouseInfo.getPointerInfo().getLocation();
+        return p.x - frame.getLocationOnScreen().x;
+    }
+    public double getMouseY()
+    {
+        Point p = MouseInfo.getPointerInfo().getLocation();
+        return p.y - frame.getLocationOnScreen().y;
     }
 }
