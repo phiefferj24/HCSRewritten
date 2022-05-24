@@ -1,11 +1,15 @@
 package com.feinbergcs;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.net.*;
 import java.io.*;
+import java.util.ArrayList;
 
 public class Client {
     public static void main(String[] args) {
+        ArrayList<Sprite> sprites = new ArrayList<Sprite>();
         Client client = new Client();
         Socket socket = client.connect("localhost", 9000);
         ClientThread clientThread = new ClientThread(socket);
@@ -13,8 +17,9 @@ public class Client {
         Display d = new Display(1280, 720, "Client", new Display.Callback() {
             @Override
             public void paintComponent(Graphics g) {
-                g.setColor(Color.BLACK);
-                g.fillRect(100, 100, 1080, 520);
+                for (Sprite sprite : sprites) {
+                    g.drawImage(loadImage(sprite.getImage()), sprite.getX(), sprite.getY(), null);
+                }
             }
 
             @Override
@@ -28,16 +33,24 @@ public class Client {
             @Override
             public void mouseMoved(int x, int y) {}
         });
-        d.repaint();
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        String line;
-        try {
-            while ((line = in.readLine()) != null) {
-                clientThread.send(line);
+        sprites.add(new Player(0, 0, 50, 50, "/circle.png"));
+        while(true) {
+            d.repaint();
+            for (Sprite sprite : sprites) {
+                sprite.step();
             }
+        }
+    }
+
+    public static BufferedImage loadImage(String path) {
+        BufferedImage image = null;
+        try {
+            URL e = Client.class.getResource(path);
+            image = ImageIO.read(e);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return image;
     }
 
     public Socket connect(String host, int port) {
