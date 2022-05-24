@@ -47,14 +47,15 @@ public class Client {
         Thread t = new Thread(d);
         t.start();
         sprites.add(new Player(0, 0, 150, 150, "/player.png"));
+       sprites.add(new Tree(50,50,100,100,"/tree.png"));
         double time = System.currentTimeMillis();
         while(true) {
             double delta = System.currentTimeMillis() - time;
             time = System.currentTimeMillis();
             mouseX = (int) d.getMouseX();
             mouseY = (int) d.getMouseY();
-            for (Sprite sprite : sprites) {
-                sprite.step(delta);
+            for (int i=0; i<sprites.size(); i++) {
+                sprites.get(i).step(delta);
             }
             try {
                 Thread.sleep(10);
