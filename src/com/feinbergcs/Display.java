@@ -8,7 +8,7 @@ import java.util.concurrent.*;
 import javax.imageio.*;
 import javax.swing.*;
 
-public class Display extends JComponent implements KeyListener, MouseListener
+public class Display extends JComponent implements KeyListener, MouseListener, Runnable
 {
     public interface Callback
     {

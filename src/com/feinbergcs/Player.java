@@ -1,11 +1,15 @@
 package com.feinbergcs;
 
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
 public class Player implements Sprite {
     private int x;
     private int y;
     private int width;
     private int height;
     private String image;
+    private double speed = 1;
 
     public Player(int x, int y, int width, int height, String image) {
         this.x = x;
@@ -66,6 +70,19 @@ public class Player implements Sprite {
     }
 
     public void step(double dt) {
-
+        for (int key : Client.downKeys) {
+            if (key == KeyEvent.VK_W) {
+                y -= (int) (dt * speed);
+            }
+            if (key == KeyEvent.VK_S) {
+                y += (int) (dt * speed);
+            }
+            if (key == KeyEvent.VK_A) {
+                x -= (int) (dt * speed);
+            }
+            if (key == KeyEvent.VK_D) {
+                x += (int) (dt * speed);
+            }
+        }
     }
 }

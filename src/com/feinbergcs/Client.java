@@ -8,6 +8,7 @@ import java.io.*;
 import java.util.ArrayList;
 
 public class Client {
+    public static ArrayList<Integer> downKeys = new ArrayList<>();
     public static void main(String[] args) {
         ArrayList<Sprite> sprites = new ArrayList<Sprite>();
         Client client = new Client();
@@ -24,20 +25,31 @@ public class Client {
 
             @Override
             public void keyPressed(int key) {
-
+                if(!downKeys.contains((Integer) key)) downKeys.add(key);
             }
 
             @Override
-            public void keyReleased(int key) {}
+            public void keyReleased(int key) {
+                downKeys.remove((Integer) key);
+            }
 
             @Override
             public void mouseMoved(int x, int y) {}
         });
+        Thread t = new Thread(d);
+        t.start();
         sprites.add(new Player(0, 0, 50, 50, "/circle.png"));
+        double time = System.currentTimeMillis();
         while(true) {
-            d.repaint();
+            double delta = System.currentTimeMillis() - time;
+            time = System.currentTimeMillis();
             for (Sprite sprite : sprites) {
-                sprite.step();
+                sprite.step(delta);
+            }
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
