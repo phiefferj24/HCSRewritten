@@ -55,7 +55,7 @@ public class Client {
         t.start();
         sprites.add(new Player(0, 0, 150, 150, "/player.png"));
         playerID = sprites.get(0).getId();
-       sprites.add(new Tree(50,50,100,100,"/wood.png"));
+
         double time = System.currentTimeMillis();
         while(true) {
             double delta = System.currentTimeMillis() - time;
