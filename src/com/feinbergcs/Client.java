@@ -31,26 +31,26 @@ public class Client {
         Display d = new Display(1280, 720, "Client", new Display.Callback() {
             @Override
             public void paintComponent(Graphics g) {
-                int playerX=0;
-                int playerY=0;
-                for (int i = 0; i < sprites.size(); i++) {
-                    Sprite sprite = sprites.get(i);
+                double playerX=0;
+                double playerY=0;
+                for (int i = 0; i < client.sprites.size(); i++) {
+                    Sprite sprite = client.sprites.get(i);
                     //System.out.println("outside the for: " + sprites.get(i).getImage());
                     if(sprite.getImage().equals("/player.png"))
                     {
                         //System.out.println("inside the for" + sprites.get(i).getImage());
-                        playerX=((Player)sprites.get(i)).getX()+(((Player)sprites.get(i)).getWidth()/2);
-                        playerY=((Player)sprites.get(i)).getY()+(((Player)sprites.get(i)).getHeight()/2);
+                        playerX=((Player)client.sprites.get(i)).getX()+(((Player)client.sprites.get(i)).getWidth()/2);
+                        playerY=((Player)client.sprites.get(i)).getY()+(((Player)client.sprites.get(i)).getHeight()/2);
                         //TODO: after do the scaling
-                        drawPlayerImage(g, loadImage(sprite.getImage()), (1280/2)-(((Player)sprites.get(i)).getWidth()/2), (720/2)-(((Player)sprites.get(i)).getHeight()/2), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
+                        drawImage(g, loadImage(sprite.getImage()), (1280/2)-(((Player)client.sprites.get(i)).getWidth()/2), (720/2)-(((Player)client.sprites.get(i)).getHeight()/2), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
                     }
                     }
-                for(int i=0; i<sprites.size();i++)
+                for(int i=0; i<client.sprites.size();i++)
                 {
-                    Sprite sprite=sprites.get(i);
-                    if(!sprites.get(i).getImage().equals("/player.png")) {
+                    Sprite sprite=client.sprites.get(i);
+                    if(!client.sprites.get(i).getImage().equals("/player.png")) {
 
-                        drawPlayerImage(g, loadImage(sprite.getImage()), sprite.getX()+((1280/2)-playerX), sprite.getY()+((720/2)-playerY), 10*sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
+                        drawImage(g, loadImage(sprite.getImage()), sprite.getX()+((1280/2)-playerX), sprite.getY()+((720/2)-playerY), 10*sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
                     }
                 }
             }
@@ -75,9 +75,9 @@ public class Client {
         });
         Thread t = new Thread(d);
         t.start();
-        sprites.add(new Player(0, 0, 15, 15, "/player.png"));
-        sprites.add(new Tree(500, 500, 100, 100, "/wood.png"));
-        playerID = sprites.get(0).getId();
+        client.sprites.add(new Player(0, 0, 150, 150, "/player.png"));
+        client.sprites.add(new Tree(500, 500, 100, 100, "/wood.png"));
+        playerID = client.sprites.get(0).getId();
 
         double time = System.currentTimeMillis();
         while(true) {
