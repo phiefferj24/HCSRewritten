@@ -72,8 +72,8 @@ public class Player extends Sprite {
         if(info.length() < 2) return;
         String[] split = info.substring(2, info.length() - 2).split(";");
         if(id == null) id = UUID.fromString(split[0]);
-        x = Integer.parseInt(split[1]);
-        y = Integer.parseInt(split[2]);
+        x = Double.parseDouble(split[1]);
+        y = Double.parseDouble(split[2]);
         width = Integer.parseInt(split[3]);
         height = Integer.parseInt(split[4]);
         image = split[5];

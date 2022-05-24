@@ -3,7 +3,8 @@ package com.feinbergcs;
 import java.util.UUID;
 
 public abstract class Sprite {
-    public int x, y, width, height;
+    public double x, y;
+    public int width, height;
     public double angle;
     public String image;
     public UUID id;
@@ -34,10 +35,10 @@ public abstract class Sprite {
     public String getImage() {
         return image;
     }
-    public int getX() {
+    public double getX() {
         return x;
     }
-    public int getY() {
+    public double getY() {
         return y;
     }
     public int getWidth() {

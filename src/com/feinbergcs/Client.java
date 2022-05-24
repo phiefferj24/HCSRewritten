@@ -20,9 +20,10 @@ public class Client {
     public static int mouseX = 0;
     public static int mouseY = 0;
     public static UUID playerID;
+    public ArrayList<Sprite> sprites = new ArrayList<Sprite>();
+    public boolean onRight = false;
     public static LinkedBlockingQueue<String> messages = new LinkedBlockingQueue<>();
     public static void main(String[] args) {
-        ArrayList<Sprite> sprites = new ArrayList<Sprite>();
         Client client = new Client();
         Socket socket = client.connect("localhost", 9000);
         ClientThread clientThread = new ClientThread(socket);
@@ -31,10 +32,10 @@ public class Client {
             @Override
             public void paintComponent(Graphics g) {
                 int count = 0;
-                for (int i = 0; i < sprites.size(); i++) {
-                    Sprite sprite = sprites.get(i);
+                for (int i = 0; i < client.sprites.size(); i++) {
+                    Sprite sprite = client.sprites.get(i);
                     count++;
-                    drawPlayerImage(g, loadImage(sprite.getImage()), sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
+                    drawImage(g, loadImage(sprite.getImage()), sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
                 }
             }
 
@@ -52,13 +53,15 @@ public class Client {
             public void mouseClicked(int x, int y) {
                 clickX = x;
                 clickY = y;
+                client.onRight = !client.onRight;
+                client.sprites.add(new Bullet(client.getPlayer(), 1, 1, 1, client.onRight));
             }
         });
         Thread t = new Thread(d);
         t.start();
-        sprites.add(new Player(0, 0, 150, 150, "/player.png"));
-        sprites.add(new Tree(500, 500, 200, 200, "/wood.png"));
-        playerID = sprites.get(0).getId();
+        client.sprites.add(new Player(0, 0, 150, 150, "/player.png"));
+        client.sprites.add(new Tree(500, 500, 200, 200, "/wood.png"));
+        playerID = client.sprites.get(0).getId();
 
         double time = System.currentTimeMillis();
         while(true) {
@@ -67,12 +70,14 @@ public class Client {
             mouseX = (int) d.getMouseX();
             mouseY = (int) d.getMouseY();
             StringBuilder message = new StringBuilder();
-            for (Sprite sprite : sprites) {
-                if(sprite.getId().equals(playerID)) {
-                    sprite.setAngle(Math.atan2(mouseY - sprite.getY() - (double)sprite.getHeight() / 2, mouseX - sprite.getX() - (double)sprite.getWidth() / 2));
+            for (int i = 0; i < client.sprites.size(); i++) {
+                Sprite sprite = client.sprites.get(i);
+                if(!(sprite instanceof Player) || sprite.getId().equals(playerID)) {
+                    if(sprite.getId().equals(playerID)) sprite.setAngle(Math.atan2(mouseY - sprite.getY() - (double)sprite.getHeight() / 2, mouseX - sprite.getX() - (double)sprite.getWidth() / 2));
                     sprite.step(delta);
-                    for(Sprite wood:sprites)
-                    {
+                    for(int j = 0; j < client.sprites.size(); j++) {
+                        if(i == j) continue;
+                        Sprite wood = client.sprites.get(j);
                         if(wood.getImage()=="/wood.png" || wood.getImage()=="/Amogus.png") {
                             Rectangle2D.Double woodRect = new Rectangle2D.Double(wood.getX(), wood.getY(), wood.getWidth(), wood.getHeight());
                             Line2D top = new Line2D.Double(sprite.getX(), sprite.getY(), sprite.getX() + sprite.getWidth(), sprite.getY());
@@ -136,7 +141,8 @@ public class Client {
                     if (!s.isEmpty()) {
                         String id = s.substring(1).split(";")[0];
                         boolean found = false;
-                        for (Sprite sprite : sprites) {
+                        for (int j = 0; j < client.sprites.size(); j++) {
+                            Sprite sprite = client.sprites.get(j);
                             if (sprite.getId().toString().equals(id)) {
                                 found = true;
                                 sprite.updateToString(s);
@@ -145,14 +151,14 @@ public class Client {
                         if (!found) {
 
                             if(messagesa[i].contains("player.png"))
-                                sprites.add(new Player(messagesa[i]));
+                                client.sprites.add(new Player(messagesa[i]));
                             if(messagesa[i].contains("wood.png"))
-                                sprites.add(new Tree(messagesa[i]));
+                                client.sprites.add(new Tree(messagesa[i]));
                             if(messagesa[i].contains("zombie.png"))
-                                sprites.add(new Zombie(messagesa[i]));
+                                client.sprites.add(new Zombie(messagesa[i]));
                             System.out.println("added " + messagesa[i]);
 
-                            sprites.get(sprites.size() - 1).updateToString(s);
+                            client.sprites.get(client.sprites.size() - 1).updateToString(s);
                         }
                     }
                 }
@@ -163,12 +169,13 @@ public class Client {
                 e.printStackTrace();
             }
         }
+        
     }
 
-    private static void drawPlayerImage(Graphics g, BufferedImage loadImage, int x, int y, int width, int height, double angle) {
+    private static void drawImage(Graphics g, BufferedImage loadImage, double x, double y, int width, int height, double angle) {
         Image scaled = loadImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
         Image rotated = rotateImageByDegrees(scaled, angle * 180 / Math.PI + 90);
-        g.drawImage(rotated, x, y, null);
+        g.drawImage(rotated, (int)x, (int)y, null);
     }
     private static BufferedImage rotateImageByDegrees(Image img, double angle) {
         double rads = Math.toRadians(angle);
@@ -209,6 +216,14 @@ public class Client {
             e.printStackTrace();
         }
         return socket;
+    }
+    public Player getPlayer() {
+        for(int i = 0; i < sprites.size(); i++) {
+            if (sprites.get(i).getId().toString().equals(playerID.toString())) {
+                return (Player) sprites.get(i);
+            }
+        }
+        return null;
     }
     public static class ClientThread extends Thread {
         private final Socket socket;
