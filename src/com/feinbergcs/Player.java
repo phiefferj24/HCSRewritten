@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.UUID;
 
 public class Player extends Sprite {
-    private double speed = 2;
+    private double speed = 1;
     private double vx;
     private double vy;
     public Player(int x, int y, int width, int height, String image, double vx, double vy) {

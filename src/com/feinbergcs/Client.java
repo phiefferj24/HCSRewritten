@@ -3,6 +3,8 @@ package com.feinbergcs;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.net.*;
 import java.io.*;
@@ -75,43 +77,40 @@ public class Client {
                             //{
 
                             //}
-                            if(wood.getX()<sprite.getX()+sprite.getWidth() && sprite.getX()+sprite.getWidth()<wood.getX()+wood.getWidth()){
+                            Rectangle2D.Double woodRect = new Rectangle2D.Double(wood.getX(), wood.getY(), wood.getWidth(), wood.getHeight());
+                            Line2D.Double playerTop = new Line2D.Double(sprite.getX(), sprite.getY(), sprite.getX() + sprite.getWidth(), sprite.getY());
+                            Line2D.Double playerBottom = new Line2D.Double(sprite.getX(), sprite.getY() + sprite.getHeight(), sprite.getX() + sprite.getWidth(), sprite.getY() + sprite.getHeight());
+                            Line2D.Double playerLeft = new Line2D.Double(sprite.getX(), sprite.getY(), sprite.getX(), sprite.getY() + sprite.getHeight());
+                            Line2D.Double playerRight = new Line2D.Double(sprite.getX() + sprite.getWidth(), sprite.getY(), sprite.getX() + sprite.getWidth(), sprite.getY() + sprite.getHeight());
+                            if(woodRect.intersectsLine(playerTop)) {
                                 //String[] split = (sprite.toString()).substring(1, (sprite.toString()).length() - 1).split(";");
                                 //split[7]="-0.1";
                                 //System.out.println(split[0]);
                                 //((Player)sprite).updateToString(split.toString());
-                                ((Player)sprite).setVX(-2);
+                                ((Player)sprite).setVY(2);
                                 //System.out.println(((Player)sprite).getVX());
                                 System.out.println("Intersecting on the left");
-                                sprite.step(delta);
                             }
-                            else if(wood.getX()+wood.getWidth()>sprite.getX() && wood.getX()<sprite.getX())
+                            else if(woodRect.intersectsLine(playerBottom))
+                            {
+                                ((Player)sprite).setVY(-2);
+                                //System.out.println(((Player)sprite).getVX());
+                            } else {
+                                ((Player)sprite).setVY(0);
+                            }
+                            if(woodRect.intersectsLine(playerLeft))
                             {
                                 ((Player)sprite).setVX(2);
-                                //System.out.println(((Player)sprite).getVX());
-                                System.out.println("Intersecting on the right");
-                                sprite.step(delta);
+                                //System.out.println(((Player)sprite).getVX())
                             }
-                            else if(wood.getY()<sprite.getY()-sprite.getHeight() && wood.getY()+wood.getHeight() > sprite.getY()+sprite.getHeight())
+                            else if(woodRect.intersectsLine(playerRight))
                             {
                                 ((Player)sprite).setVX(-2);
-                                //System.out.println(((Player)sprite).getVX())
-                                System.out.println("Intersecting on the top");
-                                sprite.step(delta);
-                            }
-                            else if(wood.getY()-wood.getHeight()>sprite.getY() && wood.getY()>sprite.getY())
-                            {
-                                ((Player)sprite).setVX(2);
                                 //System.out.println(((Player)sprite).getVX());
-                                System.out.println("Intersecting on the bottom");
-                                sprite.step(delta);
-                            }
-                            else
-                            {
+                            } else {
                                 ((Player)sprite).setVX(0);
-                                ((Player)sprite).setVY(0);
-                                sprite.step(delta);
                             }
+                                sprite.step(delta);
 
 
                         }
