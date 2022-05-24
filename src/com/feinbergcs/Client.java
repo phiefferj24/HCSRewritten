@@ -40,9 +40,10 @@ public class Client {
                     {
                         //System.out.println("inside the for" + sprites.get(i).getImage());
                         playerX=((Player)client.sprites.get(i)).getX()+(((Player)client.sprites.get(i)).getWidth()/2);
-                        playerY=((Player)client.sprites.get(i)).getY()+(((Player)client.sprites.get(i)).getHeight()/2);
+                       playerY=((Player)client.sprites.get(i)).getY()+(((Player)client.sprites.get(i)).getHeight()/2);
                         //TODO: after do the scaling
-                        drawImage(g, loadImage(sprite.getImage()), (1280/2)-(((Player)client.sprites.get(i)).getWidth()/2), (720/2)-(((Player)client.sprites.get(i)).getHeight()/2), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
+                       drawImage(g, loadImage(sprite.getImage()), (1280/2)-(((Player)client.sprites.get(i)).getWidth()/2), (720/2)-(((Player)client.sprites.get(i)).getHeight()/2), 2*sprite.getWidth(), 2*sprite.getHeight(), sprite.getAngle());
+                        //drawImage(g, loadImage(sprite.getImage()), sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
                     }
                     }
                 for(int i=0; i<client.sprites.size();i++)
@@ -50,7 +51,8 @@ public class Client {
                     Sprite sprite=client.sprites.get(i);
                     if(!client.sprites.get(i).getImage().equals("/player.png")) {
 
-                        drawImage(g, loadImage(sprite.getImage()), sprite.getX()+((1280/2)-playerX), sprite.getY()+((720/2)-playerY), 10*sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
+                        drawImage(g, loadImage(sprite.getImage()), sprite.getX()+((1280/2)-playerX), sprite.getY()+((720/2)-playerY), 2*sprite.getWidth(), 2*sprite.getHeight(), sprite.getAngle());
+                        //drawImage(g, loadImage(sprite.getImage()), sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
                     }
                 }
             }
@@ -75,7 +77,7 @@ public class Client {
         });
         Thread t = new Thread(d);
         t.start();
-        client.sprites.add(new Player(0, 0, 150, 150, "/player.png"));
+        client.sprites.add(new Player(0, 0, 50, 50, "/player.png"));
         client.sprites.add(new Tree(500, 500, 100, 100, "/wood.png"));
         playerID = client.sprites.get(0).getId();
 
