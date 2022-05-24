@@ -34,10 +34,10 @@ public class Client {
                 int playerY=0;
                 for (int i = 0; i < sprites.size(); i++) {
                     Sprite sprite = sprites.get(i);
-                    System.out.println("outside the for: " + sprites.get(i).getImage());
+                    //System.out.println("outside the for: " + sprites.get(i).getImage());
                     if(sprite.getImage().equals("/player.png"))
                     {
-                        System.out.println("inside the for" + sprites.get(i).getImage());
+                        //System.out.println("inside the for" + sprites.get(i).getImage());
                         playerX=((Player)sprites.get(i)).getX()+(((Player)sprites.get(i)).getWidth()/2);
                         playerY=((Player)sprites.get(i)).getY()+(((Player)sprites.get(i)).getHeight()/2);
                         //TODO: after do the scaling
@@ -49,7 +49,7 @@ public class Client {
                     Sprite sprite=sprites.get(i);
                     if(!sprites.get(i).getImage().equals("/player.png")) {
 
-                        drawPlayerImage(g, loadImage(sprite.getImage()), sprite.getX()+((1280/2)-playerX), sprite.getY()+((720/2)-playerY), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
+                        drawPlayerImage(g, loadImage(sprite.getImage()), sprite.getX()+((1280/2)-playerX), sprite.getY()+((720/2)-playerY), 10*sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
                     }
                 }
 
@@ -73,8 +73,8 @@ public class Client {
         });
         Thread t = new Thread(d);
         t.start();
-        sprites.add(new Player(0, 0, 150, 150, "/player.png"));
-        sprites.add(new Tree(500, 500, 200, 200, "/wood.png"));
+        sprites.add(new Player(0, 0, 15, 15, "/player.png"));
+        sprites.add(new Tree(500, 500, 100, 100, "/wood.png"));
         playerID = sprites.get(0).getId();
 
         double time = System.currentTimeMillis();
