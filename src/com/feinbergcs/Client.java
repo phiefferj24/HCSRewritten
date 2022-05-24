@@ -58,15 +58,15 @@ public class Client {
 
         double time = System.currentTimeMillis();
         while(true) {
+
+
             double delta = System.currentTimeMillis() - time;
             time = System.currentTimeMillis();
             mouseX = (int) d.getMouseX();
             mouseY = (int) d.getMouseY();
             StringBuilder message = new StringBuilder();
             for (Sprite sprite : sprites) {
-                System.out.println(sprite.toString());
                 if(sprite.getId().equals(playerID)) {
-                    System.out.println("here");
                     sprite.setAngle(Math.atan2(mouseY - sprite.getY() - (double)sprite.getHeight() / 2, mouseX - sprite.getX() - (double)sprite.getWidth() / 2));
                     sprite.step(delta);
                     message.append(sprite.toString()).append(",");
@@ -100,6 +100,7 @@ public class Client {
                                 sprites.add(new Tree(messagesa[i]));
                             if(messagesa[i].contains("zombie.png"))
                                 sprites.add(new Zombie(messagesa[i]));
+                            System.out.println("added " + messagesa[i]);
 
                             sprites.get(sprites.size() - 1).updateToString(s);
                         }

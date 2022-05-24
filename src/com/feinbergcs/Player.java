@@ -46,7 +46,7 @@ public class Player extends Sprite {
     public void updateToString(String info) {
         if(info.length() < 2) return;
         String[] split = info.substring(2, info.length() - 2).split(";");
-        id = UUID.fromString(split[0]);
+        if(id == null) id = UUID.fromString(split[0]);
         x = Integer.parseInt(split[1]);
         y = Integer.parseInt(split[2]);
         width = Integer.parseInt(split[3]);

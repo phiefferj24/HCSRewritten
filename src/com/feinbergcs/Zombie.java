@@ -28,10 +28,12 @@ public class Zombie extends Sprite{
     @Override
     public void step(double dt) {
         double speed = 1.5;
+        System.out.println(t);
         if(!seesPlayer)
         {
-            if(t<1000) {
+            if(t<150) {
                 System.out.println(gotoX);
+                System.out.println(gotoY);
                 t += dt;
                 double x =  (gotoX) - (this.x);
                 double y = (gotoY) - (this.y);
