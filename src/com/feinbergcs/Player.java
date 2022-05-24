@@ -67,8 +67,8 @@ public class Player extends Sprite {
     @Override
     public void updateToString(String info) {
         if(info.length() < 2) return;
-        String[] split = info.substring(1, info.length() - 1).split(";");
-        id = UUID.fromString(split[0]);
+        String[] split = info.substring(2, info.length() - 2).split(";");
+        if(id == null) id = UUID.fromString(split[0]);
         x = Integer.parseInt(split[1]);
         y = Integer.parseInt(split[2]);
         width = Integer.parseInt(split[3]);
@@ -78,4 +78,15 @@ public class Player extends Sprite {
         vx=Double.parseDouble(split[7]);
         vy=Double.parseDouble(split[8]);
     }
+
+    public Sprite StringToSpite(String info) {
+        if(info.length() < 2) return null;
+        String[] split = info.substring(2, info.length() - 2).split(";");
+        Player player = new Player(Integer.parseInt(split[1]),Integer.parseInt(split[2]),Integer.parseInt(split[3]),Integer.parseInt(split[4]),split[5]);
+        player.setUUID(UUID.fromString(split[0]));
+        player.setAngle(Double.parseDouble(split[6]));
+        return player;
+    }
+
+
 }

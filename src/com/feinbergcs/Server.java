@@ -13,7 +13,12 @@ public class Server {
     public static class Listener extends Thread {
         private ServerSocket serverSocket;
         private ArrayList<ServerThread> serverThreads = new ArrayList<ServerThread>();
+        private ArrayList<Sprite> sprites;
+
         public Listener(int port) {
+            sprites = new ArrayList<>();
+            sprites.add(new Tree(50,50,100,100,"/wood.png"));
+            sprites.add(new Zombie(250,250,50,50,"/zombie.png"));
             try {
                 serverSocket = new ServerSocket(port);
             } catch (IOException e) {
@@ -39,8 +44,19 @@ public class Server {
             }
         }
         public void onMessage(String message) {
-            System.out.println(message);
-            send(message);
+
+            String m = message;
+            sprites.forEach((s) -> s.step(1));//TODO delta time?
+
+            StringBuilder messageBuilder = new StringBuilder();
+            for(Sprite s: sprites)
+                 messageBuilder.append(s.toString()).append(",");
+            messageBuilder.append(m);
+            message = messageBuilder.toString();
+
+
+
+            send(message.substring(0,message.length()-1));
         }
     }
     public static class ServerThread extends Thread {
@@ -65,7 +81,6 @@ public class Server {
                     if (input == null) {
                         break;
                     }
-                    System.out.println("Recieved: " + input);
                     listener.onMessage(input);
                 }
             } catch (IOException e) {

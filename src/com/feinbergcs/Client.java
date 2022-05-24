@@ -55,9 +55,9 @@ public class Client {
         });
         Thread t = new Thread(d);
         t.start();
-        sprites.add(new Player(0, 0, 150, 150, "/player.png", 0, 0));
+        sprites.add(new Player(0, 0, 150, 150, "/player.png"));
         playerID = sprites.get(0).getId();
-       sprites.add(new Tree(200,200,100,100,"/wood.png"));
+
         double time = System.currentTimeMillis();
         while(true) {
             double delta = System.currentTimeMillis() - time;
@@ -141,8 +141,15 @@ public class Client {
                             }
                         }
                         if (!found) {
-                            System.out.println("New player: " + s);
-                            sprites.add(new Player(0, 0, 150, 150, "/player.png", 0,0));
+
+                            if(messagesa[i].contains("player.png"))
+                                sprites.add(new Player(messagesa[i]));
+                            if(messagesa[i].contains("wood.png"))
+                                sprites.add(new Tree(messagesa[i]));
+                            if(messagesa[i].contains("zombie.png"))
+                                sprites.add(new Zombie(messagesa[i]));
+                            System.out.println("added " + messagesa[i]);
+
                             sprites.get(sprites.size() - 1).updateToString(s);
                         }
                     }

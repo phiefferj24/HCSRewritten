@@ -22,6 +22,9 @@ public abstract class Sprite {
     public void setY(int y) {
         this.y = y;
     }
+    public void setUUID(UUID id) {
+        this.id = id;
+    }
     public void setWidth(int width) {
         this.width = width;
     }
@@ -52,4 +55,5 @@ public abstract class Sprite {
     public abstract void step(double deltatime);
     public abstract String toString();
     public abstract void updateToString(String info);
+    public Sprite StringToSpite(String info) {return null;}
 }
