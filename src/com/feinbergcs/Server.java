@@ -45,16 +45,17 @@ public class Server {
             }
         }
         public void onMessage(String message) {
+
             String m = message;
             System.out.println(message);//[300bf3d3-b601-400b-ba9f-609a2ac6cf29;469;457;150;150;/player.png;-2.3695780122792685],
-
             sprites.forEach((s) -> s.step(1));//TODO delta time?
 
-            StringBuilder messageBuilder = new StringBuilder("[");
+            StringBuilder messageBuilder = new StringBuilder();
             for(Sprite s: sprites)
-                 messageBuilder.append(s.toString()).append("],");
+                 messageBuilder.append(s.toString()).append(",");
             messageBuilder.append(m);
             message = messageBuilder.toString();
+
 
 
             send(message.substring(0,message.length()-1));

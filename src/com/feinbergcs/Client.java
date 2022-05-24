@@ -64,7 +64,9 @@ public class Client {
             mouseY = (int) d.getMouseY();
             StringBuilder message = new StringBuilder();
             for (Sprite sprite : sprites) {
+                System.out.println(sprite.toString());
                 if(sprite.getId().equals(playerID)) {
+                    System.out.println("here");
                     sprite.setAngle(Math.atan2(mouseY - sprite.getY() - (double)sprite.getHeight() / 2, mouseX - sprite.getX() - (double)sprite.getWidth() / 2));
                     sprite.step(delta);
                     message.append(sprite.toString()).append(",");
@@ -91,8 +93,14 @@ public class Client {
                             }
                         }
                         if (!found) {
-                            System.out.println("New player: " + s);
-                            sprites.add(new Player(0, 0, 150, 150, "/player.png"));
+
+                            if(messagesa[i].contains("player.png"))
+                                sprites.add(new Player(messagesa[i]));
+                            if(messagesa[i].contains("wood.png"))
+                                sprites.add(new Tree(messagesa[i]));
+                            if(messagesa[i].contains("zombie.png"))
+                                sprites.add(new Zombie(messagesa[i]));
+
                             sprites.get(sprites.size() - 1).updateToString(s);
                         }
                     }
@@ -187,4 +195,7 @@ public class Client {
             out.println(message);
         }
     }
+
+
+
 }

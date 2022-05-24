@@ -9,6 +9,9 @@ public class Zombie extends Sprite{
     int gotoX;
     int gotoY;
 
+    public Zombie(String info) {
+        updateToString(info);
+    }
     public Zombie(int x, int y, int width, int height, String image) {
         id = UUID.randomUUID();
         gotoX=(int)(x+(Math.random()*100)-50);
