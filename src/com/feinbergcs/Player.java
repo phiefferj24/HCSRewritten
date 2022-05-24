@@ -8,14 +8,17 @@ import java.util.UUID;
 
 public class Player extends Sprite {
     private double speed = 1;
-
-    public Player(int x, int y, int width, int height, String image) {
+    private double vx;
+    private double vy;
+    public Player(int x, int y, int width, int height, String image, double vx, double vy) {
         id = UUID.randomUUID();
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.image = image;
+        this.vx=vx;
+        this.vy=vy;
     }
     public Player(String info) {
         updateToString(info);
@@ -36,10 +39,26 @@ public class Player extends Sprite {
             }
         }
     }
+    public void setVX(double vx)
+    {
+        this.vx=vx;
+    }
+    public void setVY(double vy)
+    {
+        this.vy=vy;
+    }
 
+    public double getVX()
+    {
+        return vx;
+    }
+    public double getVY()
+    {
+        return vy;
+    }
     @Override
     public String toString() {
-        return "[" + id + ";" + x + ";" + y + ";" + width + ";" + height + ";" + image + ";" + angle + "]";
+        return "[" + id + ";" + x + ";" + y + ";" + width + ";" + height + ";" + image + ";" + angle + ";" + vx + ";" + vy + "]";
     }
 
     @Override
@@ -53,5 +72,7 @@ public class Player extends Sprite {
         height = Integer.parseInt(split[4]);
         image = split[5];
         angle = Double.parseDouble(split[6]);
+        vx=Double.parseDouble(split[7]);
+        vy=Double.parseDouble(split[8]);
     }
 }

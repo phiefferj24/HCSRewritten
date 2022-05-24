@@ -53,9 +53,9 @@ public class Client {
         });
         Thread t = new Thread(d);
         t.start();
-        sprites.add(new Player(0, 0, 150, 150, "/player.png"));
+        sprites.add(new Player(0, 0, 150, 150, "/player.png", 0, 0));
         playerID = sprites.get(0).getId();
-       sprites.add(new Tree(50,50,100,100,"/wood.png"));
+       sprites.add(new Tree(200,200,100,100,"/wood.png"));
         double time = System.currentTimeMillis();
         while(true) {
             double delta = System.currentTimeMillis() - time;
@@ -66,7 +66,56 @@ public class Client {
             for (Sprite sprite : sprites) {
                 if(sprite.getId().equals(playerID)) {
                     sprite.setAngle(Math.atan2(mouseY - sprite.getY() - (double)sprite.getHeight() / 2, mouseX - sprite.getX() - (double)sprite.getWidth() / 2));
-                    sprite.step(delta);
+                    for(Sprite wood:sprites)
+                    {
+                        if(wood.getImage()=="/wood.png" || wood.getImage()=="/Amogus.png")
+                        {
+                               //touching wood from left,                      touching wood from left                        touching wood from top                            touching wood from bottom
+                            //if(wood.getX()!=sprite.getX()+sprite.getWidth() || wood.getX()+wood.getWidth()!=sprite.getX() || wood.getY()!=sprite.getY()-sprite.getHeight() || wood.getY()-wood.getHeight()!=sprite.getY())
+                            //{
+
+                            //}
+                            if(wood.getX()<sprite.getX()+sprite.getWidth() && sprite.getX()+sprite.getWidth()<wood.getX()+wood.getWidth()){
+                                //String[] split = (sprite.toString()).substring(1, (sprite.toString()).length() - 1).split(";");
+                                //split[7]="-0.1";
+                                //System.out.println(split[0]);
+                                //((Player)sprite).updateToString(split.toString());
+                                ((Player)sprite).setVX(-2);
+                                //System.out.println(((Player)sprite).getVX());
+                                ((Player)sprite).updateToString(sprite.toString());
+                                sprite.step(delta);
+                            }
+                            else if(wood.getX()+wood.getWidth()>sprite.getX() && wood.getX()<sprite.getX())
+                            {
+                                ((Player)sprite).setVX(2);
+                                //System.out.println(((Player)sprite).getVX());
+                                ((Player)sprite).updateToString(sprite.toString());
+                                sprite.step(delta);
+                            }
+                            else if(wood.getY()<sprite.getY()-sprite.getHeight() && wood.getY()+wood.getHeight() > sprite.getY()+sprite.getHeight())
+                            {
+                                ((Player)sprite).setVX(-2);
+                                //System.out.println(((Player)sprite).getVX());
+                                ((Player)sprite).updateToString(sprite.toString());
+                                sprite.step(delta);
+                            }
+                            else if(wood.getY()-wood.getHeight()>sprite.getY() && wood.getY()>sprite.getY())
+                            {
+                                ((Player)sprite).setVX(2);
+                                //System.out.println(((Player)sprite).getVX());
+                                ((Player)sprite).updateToString(sprite.toString());
+                                sprite.step(delta);
+                            }
+                            else
+                            {
+                                sprite.step(delta);
+                            }
+
+
+                        }
+
+                    }
+
                     message.append(sprite.toString()).append(",");
                 }
             }
@@ -92,7 +141,7 @@ public class Client {
                         }
                         if (!found) {
                             System.out.println("New player: " + s);
-                            sprites.add(new Player(0, 0, 150, 150, "/player.png"));
+                            sprites.add(new Player(0, 0, 150, 150, "/player.png", 0,0));
                             sprites.get(sprites.size() - 1).updateToString(s);
                         }
                     }
