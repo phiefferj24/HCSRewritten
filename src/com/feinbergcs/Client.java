@@ -82,32 +82,34 @@ public class Client {
                                 //((Player)sprite).updateToString(split.toString());
                                 ((Player)sprite).setVX(-2);
                                 //System.out.println(((Player)sprite).getVX());
-                                ((Player)sprite).updateToString(sprite.toString());
+                                System.out.println("Intersecting on the left");
                                 sprite.step(delta);
                             }
                             else if(wood.getX()+wood.getWidth()>sprite.getX() && wood.getX()<sprite.getX())
                             {
                                 ((Player)sprite).setVX(2);
                                 //System.out.println(((Player)sprite).getVX());
-                                ((Player)sprite).updateToString(sprite.toString());
+                                System.out.println("Intersecting on the right");
                                 sprite.step(delta);
                             }
                             else if(wood.getY()<sprite.getY()-sprite.getHeight() && wood.getY()+wood.getHeight() > sprite.getY()+sprite.getHeight())
                             {
                                 ((Player)sprite).setVX(-2);
-                                //System.out.println(((Player)sprite).getVX());
-                                ((Player)sprite).updateToString(sprite.toString());
+                                //System.out.println(((Player)sprite).getVX())
+                                System.out.println("Intersecting on the top");
                                 sprite.step(delta);
                             }
                             else if(wood.getY()-wood.getHeight()>sprite.getY() && wood.getY()>sprite.getY())
                             {
                                 ((Player)sprite).setVX(2);
                                 //System.out.println(((Player)sprite).getVX());
-                                ((Player)sprite).updateToString(sprite.toString());
+                                System.out.println("Intersecting on the bottom");
                                 sprite.step(delta);
                             }
                             else
                             {
+                                ((Player)sprite).setVX(0);
+                                ((Player)sprite).setVY(0);
                                 sprite.step(delta);
                             }
 

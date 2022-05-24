@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.UUID;
 
 public class Player extends Sprite {
-    private double speed = 1;
+    private double speed = 2;
     private double vx;
     private double vy;
     public Player(int x, int y, int width, int height, String image, double vx, double vy) {
@@ -24,20 +24,23 @@ public class Player extends Sprite {
         updateToString(info);
     }
     public void step(double dt) {
+        double lvx = 0, lvy = 0;
         for (int key : Client.downKeys) {
             if (key == KeyEvent.VK_W) {
-                y -= (int) (dt * speed);
+                lvy = -speed;
             }
             if (key == KeyEvent.VK_S) {
-                y += (int) (dt * speed);
+                lvy = speed;
             }
             if (key == KeyEvent.VK_A) {
-                x -= (int) (dt * speed);
+                lvx = -speed;
             }
             if (key == KeyEvent.VK_D) {
-                x += (int) (dt * speed);
+                lvx = speed;
             }
         }
+        x += (vx + lvx) * dt;
+        y += (vy + lvy) * dt;
     }
     public void setVX(double vx)
     {

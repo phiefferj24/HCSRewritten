@@ -3,7 +3,6 @@ package com.feinbergcs;
 import java.net.*;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.logging.Handler;
 
 public class Server {
     public static void main(String[] args) {
