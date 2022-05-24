@@ -46,7 +46,7 @@ public class Client {
         });
         Thread t = new Thread(d);
         t.start();
-        sprites.add(new Player(0, 0, 50, 50, "/player.png"));
+        sprites.add(new Player(0, 0, 150, 150, "/player.png"));
         double time = System.currentTimeMillis();
         while(true) {
             double delta = System.currentTimeMillis() - time;

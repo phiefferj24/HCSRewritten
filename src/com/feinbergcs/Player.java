@@ -3,12 +3,7 @@ package com.feinbergcs;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-public class Player implements Sprite {
-    private int x;
-    private int y;
-    private int width;
-    private int height;
-    private String image;
+public class Player extends Sprite {
     private double speed = 1;
 
     public Player(int x, int y, int width, int height, String image) {
@@ -18,57 +13,9 @@ public class Player implements Sprite {
         this.height = height;
         this.image = image;
     }
-
-    @Override
-    public void setImage(String image) {
-
+    public Player(String info) {
+        updateToString(info);
     }
-
-    @Override
-    public void setX(int x) {
-
-    }
-
-    @Override
-    public void setY(int y) {
-
-    }
-
-    @Override
-    public void setWidth(int width) {
-
-    }
-
-    @Override
-    public void setHeight(int height) {
-
-    }
-
-    @Override
-    public String getImage() {
-        return image;
-    }
-
-    @Override
-    public int getX() {
-        return x;
-    }
-
-    @Override
-    public int getY() {
-        return y;
-    }
-
-    @Override
-    public int getWidth() {
-        return width;
-    }
-
-    @Override
-    public int getHeight() {
-        return height;
-    }
-
     public void step(double dt) {
         for (int key : Client.downKeys) {
             if (key == KeyEvent.VK_W) {
@@ -84,5 +31,20 @@ public class Player implements Sprite {
                 x += (int) (dt * speed);
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "[" + x + "," + y + "," + width + "," + height + "," + image + "]";
+    }
+
+    @Override
+    public void updateToString(String info) {
+        String[] split = info.split(",");
+        x = Integer.parseInt(split[0]);
+        y = Integer.parseInt(split[1]);
+        width = Integer.parseInt(split[2]);
+        height = Integer.parseInt(split[3]);
+        image = split[4];
     }
 }
