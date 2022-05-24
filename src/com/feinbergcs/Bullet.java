@@ -7,7 +7,9 @@ public class Bullet extends Sprite {
     public double vy;
     public double speed;
 
-    public Bullet(int x, int y, double vx, double vy, double angle, double speed) {
+    public Bullet(int x, int y, double vx, double vy, double angle, double speed, int size) {
+        super.width = size;
+        super.height = size;
         this.speed = speed;
         super.id = UUID.randomUUID();
         super.x = x;
@@ -16,20 +18,15 @@ public class Bullet extends Sprite {
         super.image = "/bullet.png";
         this.vx = vx * Math.cos(angle);
         this.vy = vy * Math.sin(angle);
-        super.width = 10;
-        super.height = 10;
     }
 
-    public Bullet(Sprite from, double vx, double vy, double speed, boolean rightHand) {
+    public Bullet(Sprite from, double vx, double vy, double speed, boolean rightHand, int size) {
+        super.width = size;
+        super.height = size;
         double handX = (double)from.height * 3 / 8;
-        double handY = 0;
-        if(rightHand) {
-            handY += (double)from.width * 3 / 8;
-        } else {
-            handY -= (double)from.width * 3 / 8;
-        }
-        double rotatedHandX = handX * Math.cos(from.angle) - handY * Math.sin(from.angle) + from.x + (double)from.width / 2;
-        double rotatedHandY = handX * Math.sin(from.angle) + handY * Math.cos(from.angle) + from.y + (double)from.height / 2;
+        double handY = (double)from.width * 3 / 8 * (rightHand ? 1 : -1);
+        double rotatedHandX = handX * Math.cos(from.angle) - handY * Math.sin(from.angle) + from.x + (double)from.width / 2 - (double)width;
+        double rotatedHandY = handX * Math.sin(from.angle) + handY * Math.cos(from.angle) + from.y + (double)from.height / 2 - (double)height;
         this.x = (int)rotatedHandX;
         this.y = (int)rotatedHandY;
         this.vx = vx * Math.cos(from.angle);
@@ -37,9 +34,11 @@ public class Bullet extends Sprite {
         this.speed = speed;
         super.id = UUID.randomUUID();
         super.image = "/bullet.png";
-        super.width = 10;
-        super.height = 10;
         this.angle = from.angle;
+    }
+
+    public Bullet(String info) {
+        updateToString(info);
     }
 
     @Override
@@ -50,7 +49,7 @@ public class Bullet extends Sprite {
 
     @Override
     public String toString() {
-        return "[" + id + ";" + x + ";" + y + ";" + width + ";" + height + ";" + image + ";" + angle + ";" + vx + ";" + vy + "]";
+        return "[" + id + ";" + x + ";" + y + ";" + width + ";" + height + ";" + image + ";" + angle + ";" + vx + ";" + vy + ";" + speed + "]";
     }
 
     @Override
@@ -66,14 +65,6 @@ public class Bullet extends Sprite {
         angle = Double.parseDouble(split[6]);
         vx=Double.parseDouble(split[7]);
         vy=Double.parseDouble(split[8]);
-    }
-
-    public Sprite StringToSpite(String info) {
-        if(info.length() < 2) return null;
-        String[] split = info.substring(2, info.length() - 2).split(";");
-        Player player = new Player(Integer.parseInt(split[1]),Integer.parseInt(split[2]),Integer.parseInt(split[3]),Integer.parseInt(split[4]),split[5]);
-        player.setUUID(UUID.fromString(split[0]));
-        player.setAngle(Double.parseDouble(split[6]));
-        return player;
+        speed = Double.parseDouble(split[9]);
     }
 }

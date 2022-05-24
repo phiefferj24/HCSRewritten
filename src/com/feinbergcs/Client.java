@@ -15,6 +15,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class Client {
     public static ArrayList<Integer> downKeys = new ArrayList<>();
+    public static final int WINDOW_WIDTH = 1280;
+    public static final int WINDOW_HEIGHT = 720;
     public static int clickX = 0;
     public static int clickY = 0;
     public static int mouseX = 0;
@@ -25,10 +27,10 @@ public class Client {
     public static LinkedBlockingQueue<String> messages = new LinkedBlockingQueue<>();
     public static void main(String[] args) {
         Client client = new Client();
-        Socket socket = client.connect("localhost", 9000);
+        Socket socket = client.connect("localhost", 9001);
         ClientThread clientThread = new ClientThread(socket);
         clientThread.start();
-        Display d = new Display(1280, 720, "Client", new Display.Callback() {
+        Display d = new Display(WINDOW_WIDTH, WINDOW_HEIGHT, "Client", new Display.Callback() {
             @Override
             public void paintComponent(Graphics g) {
                 double playerX=0;
@@ -42,7 +44,7 @@ public class Client {
                         playerX=((Player)client.sprites.get(i)).getX()+(((Player)client.sprites.get(i)).getWidth()/2);
                        playerY=((Player)client.sprites.get(i)).getY()+(((Player)client.sprites.get(i)).getHeight()/2);
                         //TODO: after do the scaling
-                       drawImage(g, loadImage(sprite.getImage()), (1280/2)-(((Player)client.sprites.get(i)).getWidth()/2), (720/2)-(((Player)client.sprites.get(i)).getHeight()/2), 2*sprite.getWidth(), 2*sprite.getHeight(), sprite.getAngle());
+                       drawImage(g, loadImage(sprite.getImage()), (WINDOW_WIDTH/2)-(((Player)client.sprites.get(i)).getWidth()/2), (WINDOW_HEIGHT/2)-(((Player)client.sprites.get(i)).getHeight()/2), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
                         //drawImage(g, loadImage(sprite.getImage()), sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
                     }
                     }
@@ -51,10 +53,11 @@ public class Client {
                     Sprite sprite=client.sprites.get(i);
                     if(!client.sprites.get(i).getImage().equals("/player.png")) {
 
-                        drawImage(g, loadImage(sprite.getImage()), sprite.getX()+((1280/2)-playerX), sprite.getY()+((720/2)-playerY), 2*sprite.getWidth(), 2*sprite.getHeight(), sprite.getAngle());
+                        drawImage(g, loadImage(sprite.getImage()), sprite.getX()+((1280/2)-playerX), sprite.getY()+((720/2)-playerY), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
                         //drawImage(g, loadImage(sprite.getImage()), sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
                     }
                 }
+                client.drawMinimap(g, 10000, 10000);
             }
 
             @Override
@@ -72,17 +75,53 @@ public class Client {
                 clickX = x;
                 clickY = y;
                 client.onRight = !client.onRight;
-                client.sprites.add(new Bullet(client.getPlayer(), 1, 1, 1, client.onRight));
+                client.sprites.add(new Bullet(client.getPlayer(), 1, 1, 1, client.onRight, 8));
             }
         });
         Thread t = new Thread(d);
         t.start();
-        client.sprites.add(new Player(0, 0, 50, 50, "/player.png"));
-        client.sprites.add(new Tree(500, 500, 100, 100, "/wood.png"));
+        client.sprites.add(new Player(0, 0, 100, 100, "/player.png"));
+        client.sprites.add(new Tree(500, 500, 100, 100, "/tree.png"));
         playerID = client.sprites.get(0).getId();
 
         double time = System.currentTimeMillis();
         while(true) {
+            //while(messages.isEmpty());
+            while(!messages.isEmpty()) {
+                String[] messagesa = new String[0];
+                try {
+                    messagesa = messages.take().split(",");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                for (int i = 0; i < messagesa.length - 1; i++) {
+                    String s = messagesa[i];
+                    if (!s.isEmpty()) {
+                        String id = s.substring(1).split(";")[0];
+                        boolean found = false;
+                        for (int j = 0; j < client.sprites.size(); j++) {
+                            Sprite sprite = client.sprites.get(j);
+                            if (sprite.getId().toString().equals(id)) {
+                                found = true;
+                                sprite.updateToString(s);
+                            }
+                        }
+                        if (!found) {
+
+                            if(messagesa[i].contains("player.png"))
+                                client.sprites.add(new Player(messagesa[i]));
+                            else if(messagesa[i].contains("tree.png"))
+                                client.sprites.add(new Tree(messagesa[i]));
+                            else if(messagesa[i].contains("zombie.png"))
+                                client.sprites.add(new Zombie(messagesa[i]));
+                            System.out.println("added " + messagesa[i]);
+
+                            client.sprites.get(client.sprites.size() - 1).updateToString(s);
+                        }
+                    }
+                }
+                time = messagesa[messagesa.length - 1].equals("") ? time : Double.parseDouble(messagesa[messagesa.length - 1]);
+            }
             double delta = System.currentTimeMillis() - time;
             time = System.currentTimeMillis();
             mouseX = (int) d.getMouseX();
@@ -91,12 +130,14 @@ public class Client {
             for (int i = 0; i < client.sprites.size(); i++) {
                 Sprite sprite = client.sprites.get(i);
                 if(!(sprite instanceof Player) || sprite.getId().equals(playerID)) {
-                    if(sprite.getId().equals(playerID)) sprite.setAngle(Math.atan2(mouseY - sprite.getY() - (double)sprite.getHeight() / 2, mouseX - sprite.getX() - (double)sprite.getWidth() / 2));
+                    if(sprite.getId().equals(playerID)) {
+                        sprite.setAngle(Math.atan2(mouseY - (double)WINDOW_HEIGHT/2, mouseX - (double)WINDOW_WIDTH/2));
+                    }
                     sprite.step(delta);
                     for(int j = 0; j < client.sprites.size(); j++) {
                         if(i == j) continue;
                         Sprite wood = client.sprites.get(j);
-                        if(wood.getImage()=="/wood.png" || wood.getImage()=="/Amogus.png") {
+                        if(wood.getImage()== "/tree.png" || wood.getImage()=="/Amogus.png") {
                             Rectangle2D.Double woodRect = new Rectangle2D.Double(wood.getX(), wood.getY(), wood.getWidth(), wood.getHeight());
                             Line2D top = new Line2D.Double(sprite.getX(), sprite.getY(), sprite.getX() + sprite.getWidth(), sprite.getY());
                             Line2D bottom = new Line2D.Double(sprite.getX(), sprite.getY() + sprite.getHeight(), sprite.getX() + sprite.getWidth(), sprite.getY() + sprite.getHeight());
@@ -146,47 +187,44 @@ public class Client {
                 }
             }
             clientThread.send(message.toString());
-            while(messages.isEmpty());
-            while(!messages.isEmpty()) {
-                String[] messagesa = new String[0];
-                try {
-                    messagesa = messages.take().split(",");
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                for (int i = 0; i < messagesa.length && !messagesa[i].isEmpty(); i++) {
-                    String s = messagesa[i];
-                    if (!s.isEmpty()) {
-                        String id = s.substring(1).split(";")[0];
-                        boolean found = false;
-                        for (int j = 0; j < client.sprites.size(); j++) {
-                            Sprite sprite = client.sprites.get(j);
-                            if (sprite.getId().toString().equals(id)) {
-                                found = true;
-                                sprite.updateToString(s);
-                            }
-                        }
-                        if (!found) {
-
-                            if(messagesa[i].contains("player.png"))
-                                client.sprites.add(new Player(messagesa[i]));
-                            if(messagesa[i].contains("wood.png"))
-                                client.sprites.add(new Tree(messagesa[i]));
-                            if(messagesa[i].contains("zombie.png"))
-                                client.sprites.add(new Zombie(messagesa[i]));
-                            System.out.println("added " + messagesa[i]);
-
-                            client.sprites.get(client.sprites.size() - 1).updateToString(s);
-                        }
-                    }
-                }
-            }
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+    }
+    public void drawMinimap(Graphics g, int mapWidth, int mapHeight){
+        int minimapSize = WINDOW_WIDTH / 5;
+        g.setColor(Color.WHITE);
+        g.fillRect(WINDOW_WIDTH - minimapSize - 10, 10, minimapSize, minimapSize);
+        g.setColor(Color.BLACK);
+        g.drawRect(WINDOW_WIDTH - minimapSize - 10, 10, minimapSize, minimapSize);
+        final double DOT_SIZE = 4;
+        Player player = getPlayer();
+        if(player == null) return;
+        for(int i = 0; i < sprites.size(); i++){
+            Sprite sprite = sprites.get(i);
+            double scaledX = sprite.getX() * minimapSize / mapWidth;
+            double scaledY = sprite.getY() * minimapSize / mapHeight;
+            if(sprite.image.contains("player")){
+                if(sprite.id.toString().equals(player.id.toString())) {
+                    g.setColor(Color.BLUE);
+                } else {
+                    g.setColor(Color.GREEN);
+                }
+                g.fillOval((int)(WINDOW_WIDTH - minimapSize - 10 + scaledX - DOT_SIZE/2), (int)(10 + scaledY - DOT_SIZE/2), (int)(DOT_SIZE), (int)(DOT_SIZE));
+            } else if(sprite.image.contains("zombie")){
+                g.setColor(Color.RED);
+                g.fillOval((int)(WINDOW_WIDTH - minimapSize - 10 + scaledX - DOT_SIZE/2), (int)(10 + scaledY - DOT_SIZE/2), (int)(DOT_SIZE), (int)(DOT_SIZE));
+            }
+        }
+        final int FONT_SIZE = 20;
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("Arial", Font.BOLD, FONT_SIZE));
+        FontMetrics metrics = g.getFontMetrics();
+        String pos = "(" + (int)player.x + ", " + (int)player.y + ")";
+        g.drawString(pos, WINDOW_WIDTH - metrics.stringWidth(pos) - 10, minimapSize + FONT_SIZE + 20);
     }
 
     private static void drawImage(Graphics g, BufferedImage loadImage, double x, double y, int width, int height, double angle) {
@@ -284,10 +322,5 @@ public class Client {
         double d3 = p.distance(r.getMaxX(), r.getMinY());
         double d4 = p.distance(r.getMaxX(), r.getMaxY());
         return Math.min(d1, Math.min(d2, Math.min(d3, d4)));
-//        if(min == d1) return new Point2D.Double(r.getMinX(), r.getMinY());
-//        if(min == d2) return new Point2D.Double(r.getMinX(), r.getMaxY());
-//        if(min == d3) return new Point2D.Double(r.getMaxX(), r.getMinY());
-//        if(min == d4)  return new Point2D.Double(r.getMaxX(), r.getMaxY());
-//        return null;
     }
 }

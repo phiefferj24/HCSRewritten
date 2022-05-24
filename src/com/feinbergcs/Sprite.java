@@ -56,5 +56,4 @@ public abstract class Sprite {
     public abstract void step(double deltatime);
     public abstract String toString();
     public abstract void updateToString(String info);
-    public Sprite StringToSpite(String info) {return null;}
 }

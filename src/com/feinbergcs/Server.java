@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class Server {
     public static void main(String[] args) {
-        Listener l = new Listener(9000);
+        Listener l = new Listener(9001);
         l.start();
     }
 
@@ -17,8 +17,8 @@ public class Server {
 
         public Listener(int port) {
             sprites = new ArrayList<>();
-            sprites.add(new Tree(50,50,100,100,"/wood.png"));
-            sprites.add(new Zombie(250,250,50,50,"/zombie.png"));
+            //sprites.add(new Tree(50,50,100,100, "/tree.png"));
+            //sprites.add(new Zombie(250,250,50,50,"/zombie.png"));
             try {
                 serverSocket = new ServerSocket(port);
             } catch (IOException e) {
@@ -46,7 +46,25 @@ public class Server {
         public void onMessage(String message) {
 
             String m = message;
-            sprites.forEach((s) -> s.step(1));//TODO delta time?
+            sprites.clear();
+            String[] split = m.split(",");
+            for (int i = 0; i < split.length - 1; i++) {
+                String ma = split[i];
+                if(ma.contains("tree")) {
+                    sprites.add(new Tree(ma));
+                } else if (ma.contains("zombie")) {
+                    sprites.add(new Zombie(ma));
+                } else if (ma.contains("bullet")) {
+                    sprites.add(new Bullet(ma));
+                } else if (ma.contains("player")) {
+                    sprites.add(new Player(ma));
+                } else if (ma.contains("pig")) {
+                    sprites.add(new Pig(ma));
+                }
+            }
+            double time = Double.parseDouble(split[split.length - 1]);
+            double delta = time - System.currentTimeMillis();
+            sprites.forEach((s) -> s.step(delta));//TODO delta time?
 
             StringBuilder messageBuilder = new StringBuilder();
             for(Sprite s: sprites)
