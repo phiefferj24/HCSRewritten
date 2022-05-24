@@ -4,6 +4,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.net.*;
@@ -56,6 +57,7 @@ public class Client {
         Thread t = new Thread(d);
         t.start();
         sprites.add(new Player(0, 0, 150, 150, "/player.png"));
+        sprites.add(new Tree(500, 500, 200, 200, "/wood.png"));
         playerID = sprites.get(0).getId();
 
         double time = System.currentTimeMillis();
@@ -68,53 +70,42 @@ public class Client {
             for (Sprite sprite : sprites) {
                 if(sprite.getId().equals(playerID)) {
                     sprite.setAngle(Math.atan2(mouseY - sprite.getY() - (double)sprite.getHeight() / 2, mouseX - sprite.getX() - (double)sprite.getWidth() / 2));
+                    sprite.step(delta);
                     for(Sprite wood:sprites)
                     {
                         if(wood.getImage()=="/wood.png" || wood.getImage()=="/Amogus.png")
                         {
-                               //touching wood from left,                      touching wood from left                        touching wood from top                            touching wood from bottom
-                            //if(wood.getX()!=sprite.getX()+sprite.getWidth() || wood.getX()+wood.getWidth()!=sprite.getX() || wood.getY()!=sprite.getY()-sprite.getHeight() || wood.getY()-wood.getHeight()!=sprite.getY())
-                            //{
-
-                            //}
                             Rectangle2D.Double woodRect = new Rectangle2D.Double(wood.getX(), wood.getY(), wood.getWidth(), wood.getHeight());
-                            Line2D.Double playerTop = new Line2D.Double(sprite.getX(), sprite.getY(), sprite.getX() + sprite.getWidth(), sprite.getY());
-                            Line2D.Double playerBottom = new Line2D.Double(sprite.getX(), sprite.getY() + sprite.getHeight(), sprite.getX() + sprite.getWidth(), sprite.getY() + sprite.getHeight());
-                            Line2D.Double playerLeft = new Line2D.Double(sprite.getX(), sprite.getY(), sprite.getX(), sprite.getY() + sprite.getHeight());
-                            Line2D.Double playerRight = new Line2D.Double(sprite.getX() + sprite.getWidth(), sprite.getY(), sprite.getX() + sprite.getWidth(), sprite.getY() + sprite.getHeight());
-                            if(woodRect.intersectsLine(playerTop)) {
-                                //String[] split = (sprite.toString()).substring(1, (sprite.toString()).length() - 1).split(";");
-                                //split[7]="-0.1";
-                                //System.out.println(split[0]);
-                                //((Player)sprite).updateToString(split.toString());
-                                ((Player)sprite).setVY(2);
-                                //System.out.println(((Player)sprite).getVX());
-                                System.out.println("Intersecting on the left");
+                            Point2D tl = new Point2D.Double(sprite.getX(), sprite.getY());
+                            Point2D tr = new Point2D.Double(sprite.getX() + sprite.getWidth(), sprite.getY());
+                            Point2D bl = new Point2D.Double(sprite.getX(), sprite.getY() + sprite.getHeight());
+                            Point2D br = new Point2D.Double(sprite.getX() + sprite.getWidth(), sprite.getY() + sprite.getHeight());
+                            if (woodRect.contains(tl)) {
+                                if(woodRect.getMaxX() - tl.getX() > woodRect.getMaxY() - tl.getY()) {
+                                    sprite.setY((int)woodRect.getMaxY());
+                                } else {
+                                    sprite.setX((int)woodRect.getMaxX());
+                                }
+                            } else if (woodRect.contains(tr)) {
+                                if(tr.getX() - woodRect.getMinX() > woodRect.getMaxY() - tr.getY()) {
+                                    sprite.setY((int)woodRect.getMaxY());
+                                } else {
+                                    sprite.setX((int)woodRect.getMinX() - sprite.getWidth());
+                                }
+                            } else if (woodRect.contains(bl)) {
+                                if(bl.getX() - woodRect.getMaxX() > woodRect.getMinY() - bl.getY()) {
+                                    sprite.setY((int)woodRect.getMinY() - sprite.getHeight());
+                                } else {
+                                    sprite.setX((int)woodRect.getMaxX());
+                                }
+                            } else if (woodRect.contains(br)) {
+                                if(br.getX() - woodRect.getMinX() > woodRect.getMinY() - br.getY()) {
+                                    sprite.setY((int)woodRect.getMinY() - sprite.getHeight());
+                                } else {
+                                    sprite.setX((int)woodRect.getMinX() - sprite.getWidth());
+                                }
                             }
-                            else if(woodRect.intersectsLine(playerBottom))
-                            {
-                                ((Player)sprite).setVY(-2);
-                                //System.out.println(((Player)sprite).getVX());
-                            } else {
-                                ((Player)sprite).setVY(0);
-                            }
-                            if(woodRect.intersectsLine(playerLeft))
-                            {
-                                ((Player)sprite).setVX(2);
-                                //System.out.println(((Player)sprite).getVX())
-                            }
-                            else if(woodRect.intersectsLine(playerRight))
-                            {
-                                ((Player)sprite).setVX(-2);
-                                //System.out.println(((Player)sprite).getVX());
-                            } else {
-                                ((Player)sprite).setVX(0);
-                            }
-                                sprite.step(delta);
-
-
                         }
-
                     }
 
                     message.append(sprite.toString()).append(",");
@@ -243,5 +234,17 @@ public class Client {
         public void send(String message) {
             out.println(message);
         }
+    }
+    public static double distanceToNearestCorner(Point2D p, Rectangle2D r) {
+        double d1 = p.distance(r.getMinX(), r.getMinY());
+        double d2 = p.distance(r.getMinX(), r.getMaxY());
+        double d3 = p.distance(r.getMaxX(), r.getMinY());
+        double d4 = p.distance(r.getMaxX(), r.getMaxY());
+        return Math.min(d1, Math.min(d2, Math.min(d3, d4)));
+//        if(min == d1) return new Point2D.Double(r.getMinX(), r.getMinY());
+//        if(min == d2) return new Point2D.Double(r.getMinX(), r.getMaxY());
+//        if(min == d3) return new Point2D.Double(r.getMaxX(), r.getMinY());
+//        if(min == d4)  return new Point2D.Double(r.getMaxX(), r.getMaxY());
+//        return null;
     }
 }

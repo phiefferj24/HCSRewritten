@@ -20,6 +20,9 @@ public class Player extends Sprite {
         this.vx=vx;
         this.vy=vy;
     }
+    public Player(int x, int y, int width, int height, String image) {
+        this(x, y, width, height, image, 0, 0);
+    }
     public Player(String info) {
         updateToString(info);
     }
