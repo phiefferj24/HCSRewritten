@@ -40,6 +40,11 @@ public class Player extends Sprite {
         this.vy=vy;
     }
 
+    public void setSpeed(double speed)
+    {
+        this.speed=speed;
+    }
+
     public double getVX()
     {
         return vx;

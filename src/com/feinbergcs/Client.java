@@ -28,15 +28,17 @@ public class Client {
     public static final int WINDOW_WIDTH = 1280;
     public static final int WINDOW_HEIGHT = 720;
     public static final double MONEY_RATE = 0.01;
-    public static double money = 0;
+    public static double money = 10000;
     public static int clickX = 0;
     public static int clickY = 0;
+    public static int speed = 0;
     public static int mouseX = 0;
     public static int mouseY = 0;
     public static String playerID;
     public ArrayList<Sprite> sprites = new ArrayList<Sprite>();
     public ArrayList<Sprite> spritesToAdd = new ArrayList<Sprite>();
     public boolean onRight = false;
+    public static boolean shop = false;
     public static LinkedBlockingQueue<String> messages = new LinkedBlockingQueue<>();
 
     private static ArrayList<File> soundtrack = new ArrayList<File>();
@@ -53,6 +55,7 @@ public class Client {
         Socket socket = client.connect("localhost", 9001);
         ClientThread clientThread = new ClientThread(socket);
         clientThread.start();
+
         Display d = new Display(WINDOW_WIDTH, WINDOW_HEIGHT, "Client", new Display.Callback() {
             @Override
             public void paintComponent(Graphics g) {
@@ -76,6 +79,10 @@ public class Client {
                         drawImage(g, loadImage(sprite.getImage()), sprite.getX()+((WINDOW_WIDTH/2)-playerX), sprite.getY()+((WINDOW_HEIGHT/2)-playerY), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
                 }
                 client.drawMinimap(g, 10000, 10000);
+
+
+                if(shop)
+                    drawShop(g);
             }
 
             @Override
@@ -85,11 +92,17 @@ public class Client {
                     client.onRight = !client.onRight;
                     client.spritesToAdd.add(new Bullet(client.getPlayer(), 1, 1, 1, client.onRight, 8));
                 }
+                if(key == KeyEvent.VK_C) {
+                    shop = true;
+                }
             }
 
             @Override
             public void keyReleased(int key) {
                 downKeys[key] = false;
+                if(key == KeyEvent.VK_C) {
+                    shop = false;
+                }
             }
 
             @Override
@@ -97,6 +110,30 @@ public class Client {
                 //play(new File(Client.class.getResource("/hit.wav").getPath()),false);
                 clickX = x;
                 clickY = y;
+
+                if(shop)
+                {
+                    if(Math.sqrt((clickX-130)*(clickX-130)+(clickY-160)*(clickY-160))<100)
+                    {
+                        if(money>500) {
+                            money -= 500;
+                            ((Player) client.sprites.get(0)).setSpeed(((Player) client.sprites.get(0)).speed + .3);
+                        }
+                    }
+                    else if(Math.sqrt((clickX-380)*(clickX-380)+(clickY-160)*(clickY-160))<100)
+                    {
+                        if(money>50)
+                            money-=50;
+                    }
+                    else if(Math.sqrt((clickX-600)*(clickX-600)+(clickY-160)*(clickY-160))<100)
+                    {
+                        if(money>700)
+                            ((Player) client.sprites.get(0)).setHealth(((Player) client.sprites.get(0)).health + 50);
+
+                    }
+                    return;
+                }
+
                 double relX = x - WINDOW_WIDTH/2 + client.getPlayer().x + client.getPlayer().width/2;
                 double relY = y - WINDOW_HEIGHT/2 + client.getPlayer().y + client.getPlayer().height/2;
                 Player p = client.getPlayer();
@@ -259,6 +296,36 @@ public class Client {
     }
 
 
+    public static void drawShop(Graphics g)
+    {
+        g.setColor(Color.GRAY);
+        g.fillRect(20,20,820-20, WINDOW_HEIGHT  - 30);
+        g.setColor(Color.BLUE);
+        g.fillRect(30,30,800-20, WINDOW_HEIGHT  - 50);
+
+        g.setColor(Color.GRAY);
+        g.fillRect(60,60,200, 200);
+        g.setColor(Color.BLACK);
+        g.drawString("BUY SPEED:  500$" ,65,  75);
+        drawImage(g,loadImage("/fast.png"),60.0,90.0,200,200,-Math.PI/2);
+
+        g.setColor(Color.GRAY);
+        g.fillRect(280,60,200, 200);
+        g.setColor(Color.BLACK);
+        g.drawString("WASTE $$$:  50$" ,285,  75);
+        drawImage(g,loadImage("/wakeUp.png"),280,90.0,200,200,-Math.PI/2);
+
+        g.setColor(Color.GRAY);
+        g.fillRect(500,60,200, 200);
+        g.setColor(Color.BLACK);
+        g.drawString("GAIN HEALTH:  700$" ,505,  75);
+        drawImage(g,loadImage("/docotr.png"),500,90.0,200,200,-Math.PI/2);
+
+        g.drawString("Welcome to the shop" ,285-20,  350);
+        drawImage(g,loadImage("/joe.png"),285-20,  75+300,220,300,-Math.PI/2);
+
+
+    }
     public void drawMinimap(Graphics g, int mapWidth, int mapHeight){
         int minimapSize = WINDOW_WIDTH / 5;
         g.setColor(Color.WHITE);
