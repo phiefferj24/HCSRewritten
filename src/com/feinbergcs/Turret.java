@@ -27,6 +27,7 @@ public class Turret extends Sprite{
 
 
     public void step(double dt, ArrayList<Sprite> sprites) {
+        t += dt;
         ArrayList<Sprite> zombs = new ArrayList<>();
 
         double speed = 5;
@@ -69,7 +70,10 @@ public class Turret extends Sprite{
         {
             lookatX=(int)zombieCX;
             lookatY =(int)zombieCY;
-            readyToShoot = true;
+            if(t>8000) {
+
+                readyToShoot = true;
+            }
         }
 
 
@@ -110,9 +114,12 @@ public class Turret extends Sprite{
 
     public boolean canShoot()
     {
+        boolean r = readyToShoot;
+        readyToShoot = false;
         if(readyToShoot)
             t=0;
-        return readyToShoot;
+        return r;
+
     }
 
 }
