@@ -124,7 +124,7 @@ public class Client {
             time = System.currentTimeMillis();
             mouseX = (int) d.getMouseX();
             mouseY = (int) d.getMouseY();
-            StringBuilder messageB = new StringBuilder();
+            StringBuilder messageBuilder = new StringBuilder();
             Player playergot = client.getPlayer();
             if(playergot != null) {
                 double xdel = 0;
@@ -203,14 +203,11 @@ public class Client {
                         }
                     }
                 }
-                if(sprite.image.contains("player")) {
-                    messageB.append(((Player)sprite).toString()).append(",");
-                }
-                else messageB.append(sprite.toString()).append(",");
+                messageBuilder.append(sprite.toString()).append(",");
             }
 
-            messageB.append(time);
-            clientThread.send(message.toString());
+            messageBuilder.append(time);
+            clientThread.send(messageBuilder.toString());
             d.repaint();
             try {
                 Thread.sleep(25);
