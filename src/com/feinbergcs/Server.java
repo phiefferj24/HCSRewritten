@@ -2,17 +2,19 @@ package com.feinbergcs;
 
 import java.net.*;
 import java.io.*;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Server {
-    public static ArrayList<String> messages = new ArrayList<String>();
+    public static LinkedBlockingQueue<String> messages = new LinkedBlockingQueue<>();
     public static void main(String[] args) throws InterruptedException {
         Listener l = new Listener(9001);
         l.start();
         while(true) {
-            while(!messages.isEmpty()) {
-                String message = messages.remove(0);
+            System.out.println("kjdlfkasjfdlaksjd");
+            String message = messages.take();
+            System.out.println("Rec:" + message);
                 String[] split = message.split(",");
                 for(int j = 0; j < l.sprites.size(); j++) {
                     Sprite sprite = l.sprites.get(j);
@@ -47,14 +49,13 @@ public class Server {
                 }
                 messageBuilder.append(time);
                 try {
-                    Thread.sleep(10);
+                    Thread.sleep(25);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 message = messageBuilder.toString();
                 l.send(message);
             }
-        }
     }
 
     public static class Listener extends Thread {
@@ -92,7 +93,7 @@ public class Server {
             }
         }
         public void onMessage(String message) {
-                messages.add(message);
+            messages.add(message);
         }
     }
 
@@ -119,6 +120,7 @@ public class Server {
                     if (input == null) {
                         break;
                     }
+                    System.out.println("aaaReceived: " + input);
                     listener.onMessage(input);
                 }
             } catch (IOException e) {
