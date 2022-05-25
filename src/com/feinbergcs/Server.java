@@ -47,11 +47,6 @@ public class Server {
                     messageBuilder.append(l.sprites.get(i).toString()).append(",");
                 }
                 messageBuilder.append(time);
-                try {
-                    Thread.sleep(25);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 message = messageBuilder.toString();
                 l.send(message);
             }

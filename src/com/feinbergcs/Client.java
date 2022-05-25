@@ -34,7 +34,7 @@ public class Client {
 
         soundtrack.add(new File(Client.class.getResource("/tft.wav").getPath()));
         //soundtrack.add(new File(Client.class.getResource("/tetris.wav").getPath()));
-        play(soundtrack.get((int)(Math.random()*soundtrack.size())), true);
+        //play(soundtrack.get((int)(Math.random()*soundtrack.size())), true);
         //System.out.println("THIS IS THE SOUNDTRAD: " + soundtrack.get((int)(Math.random()*soundtrack.size())));
         Client client = new Client();
         Socket socket = client.connect("localhost", 9001);
@@ -198,7 +198,9 @@ public class Client {
                             }
                         }
                     }
-                    messageBuilder.append(sprite.toString()).append(",");
+                    if(sprite.getId().equals(Client.playerID)) {
+                        messageBuilder.append(sprite.toString()).append(",");
+                    }
                 }
             }
 
@@ -206,7 +208,7 @@ public class Client {
             clientThread.send(messageBuilder.toString());
             d.repaint();
             try {
-                Thread.sleep(25);
+                Thread.sleep(20);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
