@@ -378,9 +378,7 @@ public class Client {
             sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
         }
         if ((playerCurrX != ((Player) sprite).getX() || playerCurrY != ((Player) sprite).getY()) && wood.getImage().contains("zombie")) {
-            System.out.println("PRIOR TO FORTNITE: " + ((Player)sprite).getHealth());
             ((Player)sprite).setHealth(((Player)sprite).getHealth()-10);
-            System.out.println("POST TO FORTNITE: " + ((Player)sprite).getHealth());
         }
     }
 

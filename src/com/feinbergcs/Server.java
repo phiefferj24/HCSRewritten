@@ -1,5 +1,7 @@
 package com.feinbergcs;
 
+import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 import java.net.*;
 import java.io.*;
 import java.sql.SQLOutput;
@@ -72,9 +74,23 @@ public class Server {
                     if(!s.image.contains("player")) {
                         s.step(delta);
                         if(s.image.contains("bullet")) {
+                            Bullet b = (Bullet)s;
                             if(s.x < 0 || s.x > WORLD_WIDTH || s.y < 0 || s.y > WORLD_HEIGHT) {
                                 l.sprites.remove(s);
                                 i--;
+                            } else {
+                                for(int j = 0; j < l.sprites.size(); j++) {
+                                    Sprite sprite = l.sprites.get(j);
+                                    if(sprite.getImage().contains("wall") || sprite.getImage().contains("tree")) {
+                                        Line2D bulletPath = new Line2D.Double(b.x, b.y, b.x + b.vx * b.speed * delta, b.y + b.vy * b.speed * delta);
+                                        Rectangle2D wall = new Rectangle2D.Double(sprite.x, sprite.y, sprite.width, sprite.height);
+                                        if(bulletPath.intersects(wall)) {
+                                            l.sprites.remove(s);
+                                            i--;
+                                            break;
+                                        }
+                                    }
+                                }
                             }
                         }
                         if(s.image.isEmpty()) {
@@ -83,6 +99,20 @@ public class Server {
                         }
                         if(s.image.contains("zombie")) {
                             ((Zombie)s).step(delta,l.sprites);
+                            for(int j = 0; j < l.sprites.size(); j++) {
+                                Sprite s2 = l.sprites.get(j);
+                                if(s2.image.contains("wall")) {
+                                    collide(s,s2);
+                                } else if(s2.image.contains("bullet")) {
+                                    if(doesCollide(s,s2)) {
+                                        l.sprites.remove(s);
+                                        l.sprites.remove(s2);
+                                        i -= 2;
+                                        j -= 2;
+                                        continue;
+                                    }
+                                }
+                            }
                         }
                         else if(s.image.contains("turret")) {
                             if(((Turret)s).canShoot())
@@ -110,6 +140,57 @@ public class Server {
                 reccount = 0;
                 sentPlayers = new ArrayList<>();
             }
+        }
+    }
+
+    public static boolean doesCollide(Sprite s1, Sprite s2) {
+        Rectangle2D r1 = new Rectangle2D.Double(s1.x, s1.y, s1.width, s1.height);
+        Rectangle2D r2 = new Rectangle2D.Double(s2.x, s2.y, s2.width, s2.height);
+        return r1.intersects(r2) || r2.intersects(r1);
+    }
+
+    public static void collide(Sprite sprite, Sprite wood) {
+        Rectangle2D.Double woodRect = new Rectangle2D.Double(wood.getX(), wood.getY(), wood.getWidth(), wood.getHeight());
+        Line2D top = new Line2D.Double(sprite.getX(), sprite.getY(), sprite.getX() + sprite.getWidth(), sprite.getY());
+        Line2D bottom = new Line2D.Double(sprite.getX(), sprite.getY() + sprite.getHeight(), sprite.getX() + sprite.getWidth(), sprite.getY() + sprite.getHeight());
+        Line2D left = new Line2D.Double(sprite.getX(), sprite.getY(), sprite.getX(), sprite.getY() + sprite.getHeight());
+        Line2D right = new Line2D.Double(sprite.getX() + sprite.getWidth(), sprite.getY(), sprite.getX() + sprite.getWidth(), sprite.getY() + sprite.getHeight());
+        if (woodRect.intersectsLine(top)) {
+            if (woodRect.intersectsLine(left)) {
+                if (Math.abs(woodRect.getMaxX() - sprite.getX()) < Math.abs(woodRect.getMaxY() - sprite.getY())) {
+                    sprite.setX((int) woodRect.getMaxX());
+                } else {
+                    sprite.setY((int) woodRect.getMaxY());
+                }
+            } else if (woodRect.intersectsLine(right)) {
+                if (Math.abs(woodRect.getMinX() - sprite.getX() - sprite.getWidth()) < Math.abs(woodRect.getMaxY() - sprite.getY())) {
+                    sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
+                } else {
+                    sprite.setY((int) woodRect.getMaxY());
+                }
+            } else {
+                sprite.setY((int) woodRect.getMaxY());
+            }
+        } else if (woodRect.intersectsLine(bottom)) {
+            if (woodRect.intersectsLine(left)) {
+                if (Math.abs(woodRect.getMaxX() - sprite.getX()) < Math.abs(woodRect.getMinY() - sprite.getY() - sprite.getHeight())) {
+                    sprite.setX((int) woodRect.getMaxX());
+                } else {
+                    sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
+                }
+            } else if (woodRect.intersectsLine(right)) {
+                if (Math.abs(woodRect.getMinX() - sprite.getX() - sprite.getWidth()) < Math.abs(woodRect.getMinY() - sprite.getY() - sprite.getHeight())) {
+                    sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
+                } else {
+                    sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
+                }
+            } else {
+                sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
+            }
+        } else if (woodRect.intersectsLine(left)) {
+            sprite.setX((int) woodRect.getMaxX());
+        } else if (woodRect.intersectsLine(right)) {
+            sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
         }
     }
 
