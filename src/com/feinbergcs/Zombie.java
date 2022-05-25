@@ -38,6 +38,11 @@ public class Zombie extends Sprite{
 
         if(sprites == null)
             return;
+        for(int i = 0; i < sprites.size(); i++)
+            if(!(sprites.get(i) instanceof Player)) {
+                sprites.remove(i);
+                i--;
+            }
         for(Sprite s: sprites)
         {
 
