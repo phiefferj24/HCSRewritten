@@ -79,7 +79,7 @@ public class Client {
                     double playerCY = client.sprites.get(0).getY()+client.sprites.get(0).getHeight()/2;
                     double cx = client.sprites.get(i).getX()+client.sprites.get(0).getWidth()/2;
                     double cy = client.sprites.get(i).getY()+client.sprites.get(0).getHeight()/2;
-                    if(Math.sqrt((playerCX-cx)*(playerCX-cx)+(playerCY-cy)*(playerCY-cy))<2000)
+                    if(Math.sqrt((playerCX-cx)*(playerCX-cx)+(playerCY-cy)*(playerCY-cy))<1200)
                         drawImage(g, loadImage(sprite.getImage()), sprite.getX()+((WINDOW_WIDTH/2)-playerX), sprite.getY()+((WINDOW_HEIGHT/2)-playerY), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
                 }
             client.drawMinimap(g, MAP_WIDTH, MAP_HEIGHT);

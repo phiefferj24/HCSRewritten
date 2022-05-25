@@ -11,8 +11,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class Server {
     public static LinkedBlockingQueue<String> messages = new LinkedBlockingQueue<>();
     public static int ppl = 0;
+    public static int numZombs = 0;
     public static final int WORLD_WIDTH = 10000;
     public static final int WORLD_HEIGHT = 10000;
+
     public static void main(String[] args) throws InterruptedException {
         Listener l = new Listener(9001);
         l.start();
@@ -28,6 +30,7 @@ public class Server {
 
         for(int i = 0; i < 9500; i+=Math.random()*2900+100)
             for(int j = 0; j < 9500; j+=Math.random()*2900+400) {
+                numZombs++;
                 l.sprites.add(new Zombie((int)(i+Math.random()*1200), (int)(j+Math.random()*1200), 100, 100,"/zombie.png"));
             }
 
@@ -35,6 +38,11 @@ public class Server {
         int reccount = 0;
         ArrayList<String> sentPlayers = new ArrayList<>();
         while(true) {
+            while(numZombs!=80) {
+                numZombs++;
+                l.sprites.add(new Zombie((int) (Math.random() * 8000), (int) (Math.random() * 8000), 100, 100, "/zombie.png"));
+            }
+
             String message = messages.take();
             reccount++;
             double delta = System.currentTimeMillis() - lastTime;
