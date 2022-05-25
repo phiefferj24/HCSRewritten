@@ -49,12 +49,15 @@ public class Client {
         //System.out.println("THIS IS THE SOUNDTRAD: " + soundtrack.get((int)(Math.random()*soundtrack.size())));
 
         Client client = new Client();
+        //76.181.240.154
         Socket socket = client.connect("localhost", 9001);
         ClientThread clientThread = new ClientThread(socket);
         clientThread.start();
         Display d = new Display(WINDOW_WIDTH, WINDOW_HEIGHT, "Client", new Display.Callback() {
             @Override
             public void paintComponent(Graphics g) {
+                g.setColor(new Color(11, 173, 14));
+                g.fillRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
                 double playerX=0;
                 double playerY=0;
                 Player p = client.getPlayer();
@@ -65,7 +68,12 @@ public class Client {
                 for (int i = 0; i < client.sprites.size() && p != null; i++) {
                     Sprite sprite = client.sprites.get(i);
                     //System.out.println("outside the for: " + sprites.get(i).getImage());
-                    drawImage(g, loadImage(sprite.getImage()), sprite.getX()+((WINDOW_WIDTH/2)-playerX), sprite.getY()+((WINDOW_HEIGHT/2)-playerY), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
+                    double playerCX = client.sprites.get(0).getX()+client.sprites.get(0).getWidth()/2;
+                    double playerCY = client.sprites.get(0).getY()+client.sprites.get(0).getHeight()/2;
+                    double cx = client.sprites.get(i).getX()+client.sprites.get(0).getWidth()/2;
+                    double cy = client.sprites.get(i).getY()+client.sprites.get(0).getHeight()/2;
+                    if(Math.sqrt((playerCX-cx)*(playerCX-cx)+(playerCY-cy)*(playerCY-cy))<2000)
+                        drawImage(g, loadImage(sprite.getImage()), sprite.getX()+((WINDOW_WIDTH/2)-playerX), sprite.getY()+((WINDOW_HEIGHT/2)-playerY), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
                 }
                 client.drawMinimap(g, 10000, 10000);
             }
@@ -115,7 +123,7 @@ public class Client {
         Thread t = new Thread(d);
         t.start();
         client.sprites.add(new Player(0, 0, 100, 100, "/player.png"));
-        client.sprites.add(new Tree(500, 500, 100, 100, "/tree.png"));
+        //client.sprites.add(new Tree(500, 500, 100, 100, "/tree.png"));
         playerID = client.sprites.get(0).getId();
 
         double lastTime = System.currentTimeMillis();
@@ -203,6 +211,8 @@ public class Client {
                     Sprite sprite = client.sprites.get(i);
                     if(sprite.getId().equals(playergot.getId()) || sprite.getImage().contains("bullet")) continue;
                     client.collide(playergot, sprite);
+                    //first one is the one you want to move
+                    //second one is the one you want ot move out of
                 }
                 messageBuilder.append(playergot.toString()).append(",");
             }
@@ -319,6 +329,8 @@ public class Client {
     }
 
     public void collide(Sprite sprite, Sprite wood) {
+        double playerCurrX = ((Player) sprite).getX();
+        double playerCurrY = ((Player) sprite).getY();
         Rectangle2D.Double woodRect = new Rectangle2D.Double(wood.getX(), wood.getY(), wood.getWidth(), wood.getHeight());
         Line2D top = new Line2D.Double(sprite.getX(), sprite.getY(), sprite.getX() + sprite.getWidth(), sprite.getY());
         Line2D bottom = new Line2D.Double(sprite.getX(), sprite.getY() + sprite.getHeight(), sprite.getX() + sprite.getWidth(), sprite.getY() + sprite.getHeight());
@@ -327,39 +339,63 @@ public class Client {
         if (woodRect.intersectsLine(top)) {
             if (woodRect.intersectsLine(left)) {
                 if (Math.abs(woodRect.getMaxX() - sprite.getX()) < Math.abs(woodRect.getMaxY() - sprite.getY())) {
+                    //System.out.println("top collides 1");
+
                     sprite.setX((int) woodRect.getMaxX());
                 } else {
+                    // System.out.println("top collides 2");
+
                     sprite.setY((int) woodRect.getMaxY());
                 }
             } else if (woodRect.intersectsLine(right)) {
                 if (Math.abs(woodRect.getMinX() - sprite.getX() - sprite.getWidth()) < Math.abs(woodRect.getMaxY() - sprite.getY())) {
+                    // System.out.println("right collides 1");
+
                     sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
                 } else {
+                    // System.out.println("right collides 2");
                     sprite.setY((int) woodRect.getMaxY());
                 }
             } else {
+                //  System.out.println("bruh collides 1");
                 sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
             }
         } else if (woodRect.intersectsLine(bottom)) {
             if (woodRect.intersectsLine(left)) {
                 if (Math.abs(woodRect.getMaxX() - sprite.getX()) < Math.abs(woodRect.getMinY() - sprite.getY() - sprite.getHeight())) {
+                    //   System.out.println("left collides 1");
+
                     sprite.setX((int) woodRect.getMaxX());
                 } else {
+                    //System.out.println("left collides 2");
+
                     sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
                 }
             } else if (woodRect.intersectsLine(right)) {
                 if (Math.abs(woodRect.getMinX() - sprite.getX() - sprite.getWidth()) < Math.abs(woodRect.getMinY() - sprite.getY() - sprite.getHeight())) {
+                    //System.out.println("rightbruh collides 1");
+
                     sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
                 } else {
+                    //System.out.println("rightbruh collides 2");
                     sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
                 }
             } else {
+
                 sprite.setY((int) woodRect.getMaxY());
             }
         } else if (woodRect.intersectsLine(left)) {
+
             sprite.setX((int) woodRect.getMaxX());
         } else if (woodRect.intersectsLine(right)) {
+
             sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
+        }
+        if ((playerCurrX != ((Player) sprite).getX() || playerCurrY != ((Player) sprite).getY()) && wood.getImage().equals("/tree   .png"))
+        {
+            System.out.println("PRIOR TO FORTNITE: " + ((Player)sprite).getHealth());
+            ((Player)sprite).setHealth(((Player)sprite).getHealth()-10);
+            System.out.println("POST TO FORTNITE: " + ((Player)sprite).getHealth());
         }
     }
 

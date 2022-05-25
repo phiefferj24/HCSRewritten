@@ -28,6 +28,7 @@ public class Zombie extends Sprite{
 
 
     public void step(double dt, ArrayList<Sprite> sprites) {
+        ArrayList<Sprite> players = new ArrayList<>();
         double speed = 5;
         double playerCX = 0;
         double playerCY = 0;
@@ -38,7 +39,11 @@ public class Zombie extends Sprite{
 
         if(sprites == null)
             return;
-        for(Sprite s: sprites)
+        for(int i = 0; i < sprites.size(); i++)
+            if((sprites.get(i) instanceof Player)) {
+                players.add(sprites.get(i));
+            }
+        for(Sprite s: players)
         {
 
             seesPlayer = false;

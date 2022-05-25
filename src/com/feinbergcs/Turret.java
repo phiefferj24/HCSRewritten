@@ -26,6 +26,8 @@ public class Turret extends Sprite{
 
 
     public void step(double dt, ArrayList<Sprite> sprites) {
+        ArrayList<Sprite> players = new ArrayList<>();
+
         double speed = 5;
         double zombieCX = 0;
         double zombieCY = 0;
@@ -36,6 +38,10 @@ public class Turret extends Sprite{
 
         if(sprites == null)
             return;
+        for(int i = 0; i < sprites.size(); i++)
+            if((sprites.get(i) instanceof Player)) {
+                players.add(sprites.get(i));
+            }
         for(Sprite s: sprites)
         {
 

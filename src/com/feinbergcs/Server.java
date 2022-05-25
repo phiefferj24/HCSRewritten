@@ -14,6 +14,17 @@ public class Server {
     public static void main(String[] args) throws InterruptedException {
         Listener l = new Listener(9001);
         l.start();
+        for(int i = 0; i < 9500; i+=Math.random()*1200+400)
+            for(int j = 0; j < 9500; j+=Math.random()*1200+400) {
+                l.sprites.add(new Tree(i, j, 100, 100, "/tree.png"));
+
+            }
+
+        for(int i = 0; i < 9500; i+=Math.random()*2900+100)
+            for(int j = 0; j < 9500; j+=Math.random()*2900+400) {
+                l.sprites.add(new Zombie((int)(i+Math.random()*1200), (int)(j+Math.random()*1200), 100, 100,"/zombie.png"));
+            }
+
         double lastTime = System.currentTimeMillis();
         int reccount = 0;
         ArrayList<String> sentPlayers = new ArrayList<>();
@@ -66,6 +77,11 @@ public class Server {
                             l.sprites.remove(s);
                             i--;
                         }
+                        if(s.image.contains("zombie")) {
+                            ((Zombie)s).step(delta,l.sprites);
+                        }
+                        else
+                            s.step(delta);
                     }
                 }//TODO delta time?
 
