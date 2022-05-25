@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import static java.lang.Math.pow;
+
 public class Client {
 
     // COSTS
@@ -557,7 +559,7 @@ public class Client {
             sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
         }
         if ((playerCurrX != ((Player) sprite).getX() || playerCurrY != ((Player) sprite).getY()) && wood.getImage().contains("zombie")) {
-            ((Player)sprite).setHealth(((Player)sprite).getHealth()-1);
+            ((Player)sprite).setHealth(((Player)sprite).getHealth()-2*(wood.getHeight()/1000));
         }
     }
 

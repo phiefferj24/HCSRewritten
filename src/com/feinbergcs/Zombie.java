@@ -3,6 +3,8 @@ package com.feinbergcs;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import static java.lang.Math.pow;
+
 public class Zombie extends Sprite{
 
     private boolean seesPlayer = false;
@@ -29,7 +31,10 @@ public class Zombie extends Sprite{
 
     public void step(double dt, ArrayList<Sprite> sprites) {
         ArrayList<Sprite> players = new ArrayList<>();
-        double speed = 0.3;
+        //0.1 slowest, 0.3 fastest
+        //max is 400
+        System.out.println(this.getHeight()/1000);
+        double speed = this.getHeight()/1000;
         double playerCX = 0;
         double playerCY = 0;
 
