@@ -77,6 +77,8 @@ public class Server {
             send(message.substring(0,message.length()-1));
         }
     }
+
+
     public static class ServerThread extends Thread {
         private Socket socket;
         private BufferedReader in;
