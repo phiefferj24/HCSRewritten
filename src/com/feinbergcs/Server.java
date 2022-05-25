@@ -44,7 +44,7 @@ public class Server {
         for(int i = 1000; i < 9500; i+=Math.random()*2900+100)
             for(int j = 1000; j < 9500; j+=Math.random()*2900+400) {
                 numZombs++;
-                int widthHeight=(int)(100+Math.random()*300);
+                int widthHeight=(int)(50+Math.random()*200);
                 l.sprites.add(new Zombie((int)(i+Math.random()*120), (int)(j+Math.random()*120), widthHeight, widthHeight,"/zombie.png"));
             }
 

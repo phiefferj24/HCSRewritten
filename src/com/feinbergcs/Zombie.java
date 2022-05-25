@@ -11,6 +11,7 @@ public class Zombie extends Sprite{
     double t;
     int gotoX;
     int gotoY;
+    double speed;
 
     public Zombie(String info) {
         updateToString(info);
@@ -25,6 +26,7 @@ public class Zombie extends Sprite{
         this.height = height;
         this.image = image;
         t=0;
+        speed = 20.0/(double)width;
     }
 
 
@@ -33,8 +35,6 @@ public class Zombie extends Sprite{
         ArrayList<Sprite> players = new ArrayList<>();
         //0.1 slowest, 0.3 fastest
         //max is 400
-        System.out.println(this.getHeight()/1000);
-        double speed = this.getHeight()/1000;
         double playerCX = 0;
         double playerCY = 0;
 
