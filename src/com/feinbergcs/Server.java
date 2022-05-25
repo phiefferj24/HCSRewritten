@@ -3,11 +3,58 @@ package com.feinbergcs;
 import java.net.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Server {
-    public static void main(String[] args) {
+    public static ArrayList<String> messages = new ArrayList<String>();
+    public static void main(String[] args) throws InterruptedException {
         Listener l = new Listener(9001);
         l.start();
+        while(true) {
+            while(!messages.isEmpty()) {
+                String message = messages.remove(0);
+                String[] split = message.split(",");
+                for(int j = 0; j < l.sprites.size(); j++) {
+                    Sprite sprite = l.sprites.get(j);
+                    for (int i = 0; i < split.length - 1; i++) {
+                        if(split[i].contains(sprite.getId())) {
+                            sprite.updateToString(split[i]);
+                            split[i] = "";
+                        }
+                    }
+                }
+                for(int i = 0; i < split.length - 1; i++) {
+                    if(!split[i].equals("")) {
+                        if(split[i].contains("player")) {
+                            l.sprites.add(new Player(split[i]));
+                        } else if(split[i].contains("bullet")) {
+                            l.sprites.add(new Bullet(split[i]));
+                        } else if(split[i].contains("tree")) {
+                            l.sprites.add(new Tree(split[i]));
+                        } else if(split[i].contains("zombie")) {
+                            l.sprites.add(new Zombie(split[i]));
+                        }
+                    }
+                }
+                double time = Double.parseDouble(split[split.length - 1]);
+                double delta = time - System.currentTimeMillis();
+                time = System.currentTimeMillis();
+                l.sprites.forEach((s) -> s.step(delta));//TODO delta time?
+
+                StringBuilder messageBuilder = new StringBuilder();
+                for(int i = 0; i < l.sprites.size(); i++) {
+                    messageBuilder.append(l.sprites.get(i).toString()).append(",");
+                }
+                messageBuilder.append(time);
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                message = messageBuilder.toString();
+                l.send(message);
+            }
+        }
     }
 
     public static class Listener extends Thread {
@@ -44,47 +91,8 @@ public class Server {
             }
         }
         public void onMessage(String message) {
-
-            String m = message;
-            String[] split = m.split(",");
-            for(int j = 0; j < sprites.size(); j++) {
-                Sprite sprite = sprites.get(j);
-                for (int i = 0; i < split.length - 1; i++) {
-                    if(split[i].contains(sprite.getId())) {
-                        sprite.updateToString(split[i]);
-                        split[i] = "";
-                    }
-                }
-            }
-            for(int i = 0; i < split.length - 1; i++) {
-                if(!split[i].equals("")) {
-                    if(split[i].contains("player")) {
-                        sprites.add(new Player(split[i]));
-                    } else if(split[i].contains("bullet")) {
-                        sprites.add(new Bullet(split[i]));
-                    } else if(split[i].contains("tree")) {
-                        sprites.add(new Tree(split[i]));
-                    } else if(split[i].contains("zombie")) {
-                        sprites.add(new Zombie(split[i]));
-                    }
-                }
-            }
-            double time = Double.parseDouble(split[split.length - 1]);
-            double delta = time - System.currentTimeMillis();
-            time = System.currentTimeMillis();
-            sprites.forEach((s) -> s.step(delta));//TODO delta time?
-
-            StringBuilder messageBuilder = new StringBuilder();
-            for(Sprite s: sprites)
-                 messageBuilder.append(s.toString()).append(",");
-            messageBuilder.append(time);
-            message = messageBuilder.toString();
-            send(message);
-//            try {
-//                Thread.sleep(10);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
+            System.out.println(message);
+                messages.add(message);
         }
     }
 

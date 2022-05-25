@@ -25,7 +25,7 @@ public class Client {
     public static String playerID;
     public ArrayList<Sprite> sprites = new ArrayList<Sprite>();
     public boolean onRight = false;
-    public static LinkedBlockingQueue<String> messages = new LinkedBlockingQueue<>();
+    public static ArrayList<String> messages = new ArrayList<>();
 
     private static ArrayList<File> soundtrack = new ArrayList<File>();
 
@@ -104,11 +104,7 @@ public class Client {
             while(!messages.isEmpty()) {
                 String[] messagesa;
                 String message = "";
-                try {
-                    message = messages.take();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                message = messages.remove(0);
                 messagesa = message.split(",");
                 for(int j = 0; j < client.sprites.size(); j++) {
                     Sprite sprite = client.sprites.get(j);
@@ -199,12 +195,13 @@ public class Client {
             }
 
             message.append(time);
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             clientThread.send(message.toString());
-//            try {
-//                Thread.sleep(10);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
+            d.repaint();
         }
     }
 
@@ -344,10 +341,10 @@ public class Client {
                 while (running) {
                     String input = in.readLine();
                     if (input != null) {
-                        messages.put(input);
+                        messages.add(input);
                     }
                 }
-            } catch (IOException | InterruptedException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             } finally {
                 try {

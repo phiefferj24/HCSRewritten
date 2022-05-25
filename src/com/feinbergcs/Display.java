@@ -93,39 +93,16 @@ public class Display extends JComponent implements KeyListener, MouseListener, R
 
     public void run()
     {
-        while (true)
-        {
-            repaint();
-            try { Thread.sleep(10); } catch(Exception e) { }
-
-            while (!keys.isEmpty())
-            {
-                KeyEvent event = keys.poll();
-                if (event.getID() == KeyEvent.KEY_PRESSED)
-                    callback.keyPressed(event.getKeyCode());
-                else if (event.getID() == KeyEvent.KEY_RELEASED)
-                    callback.keyReleased(event.getKeyCode());
-                else
-                    throw new RuntimeException("Unexpected event type:  " + event.getID());
-            }
-
-            if (mouseX != -1)
-            {
-                callback.mouseClicked(mouseX, mouseY);
-                mouseX = -1;
-                mouseY = -1;
-            }
-        }
     }
 
     public void keyPressed(KeyEvent e)
     {
-        keys.add(e);
+        callback.keyPressed(e.getKeyCode());
     }
 
     public void keyReleased(KeyEvent e)
     {
-        keys.add(e);
+        callback.keyReleased(e.getKeyCode());
     }
 
     public void keyTyped(KeyEvent e)
@@ -137,6 +114,7 @@ public class Display extends JComponent implements KeyListener, MouseListener, R
     {
         mouseX = e.getX();
         mouseY = e.getY();
+        callback.mouseClicked(mouseX, mouseY);
     }
 
     public void mouseReleased(MouseEvent e)
