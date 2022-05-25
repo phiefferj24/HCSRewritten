@@ -8,7 +8,7 @@ public class Pig extends Sprite {
     private double angle = Math.random()*360;
 
     public Pig(int x, int y, int width, int height, String image) {
-        id = UUID.randomUUID();
+        id = UUID.randomUUID().toString();
         this.x = x;
         this.y = y;
         this.width = width;
@@ -35,7 +35,7 @@ public class Pig extends Sprite {
     public void updateToString(String info) {
         if(info.length() < 2) return;
         String[] split = info.substring(1, info.length() - 1).split(";");
-        id = UUID.fromString(split[0]);
+        id = split[0];
         x = Double.parseDouble(split[1]);
         y = Double.parseDouble(split[2]);
         width = Integer.parseInt(split[3]);

@@ -13,7 +13,7 @@ public class Zombie extends Sprite{
         updateToString(info);
     }
     public Zombie(int x, int y, int width, int height, String image) {
-        id = UUID.randomUUID();
+        id = UUID.randomUUID().toString();
         gotoX=(int)(x+(Math.random()*100)-50);
         gotoY=(int)(y+(Math.random()*100)-50);
         this.x = x;
@@ -61,7 +61,7 @@ public class Zombie extends Sprite{
     public void updateToString(String info) {
         if(info.length() < 2) return;
         String[] split = info.substring(1, info.length() - 1).split(";");
-        id = UUID.fromString(split[0]);
+        id = split[0];
         x = Double.parseDouble(split[1]);
         y = Double.parseDouble(split[2]);
         width = Integer.parseInt(split[3]);

@@ -21,7 +21,7 @@ public class Client {
     public static int clickY = 0;
     public static int mouseX = 0;
     public static int mouseY = 0;
-    public static UUID playerID;
+    public static String playerID;
     public ArrayList<Sprite> sprites = new ArrayList<Sprite>();
     public boolean onRight = false;
     public static LinkedBlockingQueue<String> messages = new LinkedBlockingQueue<>();
@@ -35,26 +35,22 @@ public class Client {
             public void paintComponent(Graphics g) {
                 double playerX=0;
                 double playerY=0;
-                for (int i = 0; i < client.sprites.size(); i++) {
+                Player p = client.getPlayer();
+                if(p != null) {
+                    playerX = p.x;
+                    playerY = p.y;
+                }
+                for (int i = 0; i < client.sprites.size() && p != null; i++) {
                     Sprite sprite = client.sprites.get(i);
                     //System.out.println("outside the for: " + sprites.get(i).getImage());
                     if(sprite.getImage().equals("/player.png"))
                     {
                         //System.out.println("inside the for" + sprites.get(i).getImage());
-                        playerX=((Player)client.sprites.get(i)).getX()+(((Player)client.sprites.get(i)).getWidth()/2);
-                       playerY=((Player)client.sprites.get(i)).getY()+(((Player)client.sprites.get(i)).getHeight()/2);
                         //TODO: after do the scaling
-                       drawImage(g, loadImage(sprite.getImage()), (WINDOW_WIDTH/2)-(((Player)client.sprites.get(i)).getWidth()/2), (WINDOW_HEIGHT/2)-(((Player)client.sprites.get(i)).getHeight()/2), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
+                       drawImage(g, loadImage(sprite.getImage()), (WINDOW_WIDTH/2)-(p.getWidth()/2), (WINDOW_HEIGHT/2)-(p.getHeight()/2), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
                         //drawImage(g, loadImage(sprite.getImage()), sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
-                    }
-                    }
-                for(int i=0; i<client.sprites.size();i++)
-                {
-                    Sprite sprite=client.sprites.get(i);
-                    if(!client.sprites.get(i).getImage().equals("/player.png")) {
-
-                        drawImage(g, loadImage(sprite.getImage()), sprite.getX()+((1280/2)-playerX), sprite.getY()+((720/2)-playerY), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
-                        //drawImage(g, loadImage(sprite.getImage()), sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
+                    } else {
+                        drawImage(g, loadImage(sprite.getImage()), sprite.getX()+((WINDOW_WIDTH/2)-playerX), sprite.getY()+((WINDOW_HEIGHT/2)-playerY), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
                     }
                 }
                 client.drawMinimap(g, 10000, 10000);
@@ -85,38 +81,42 @@ public class Client {
         playerID = client.sprites.get(0).getId();
 
         double time = System.currentTimeMillis();
+        StringBuilder fm = new StringBuilder();
+        for(int i = 0; i < client.sprites.size(); i++) {
+            Sprite sprite = client.sprites.get(i);
+            fm.append(sprite.toString()).append(",");
+        }
+        fm.append(System.currentTimeMillis());
+        clientThread.send(fm.toString());
         while(true) {
-            //while(messages.isEmpty());
             while(!messages.isEmpty()) {
-                String[] messagesa = new String[0];
+                String[] messagesa;
+                String message = "";
                 try {
-                    messagesa = messages.take().split(",");
+                    message = messages.take();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                for (int i = 0; i < messagesa.length - 1; i++) {
-                    String s = messagesa[i];
-                    if (!s.isEmpty()) {
-                        String id = s.substring(1).split(";")[0];
-                        boolean found = false;
-                        for (int j = 0; j < client.sprites.size(); j++) {
-                            Sprite sprite = client.sprites.get(j);
-                            if (sprite.getId().toString().equals(id)) {
-                                found = true;
-                                sprite.updateToString(s);
-                            }
+                messagesa = message.split(",");
+                for(int j = 0; j < client.sprites.size(); j++) {
+                    Sprite sprite = client.sprites.get(j);
+                    for (int i = 0; i < messagesa.length - 1; i++) {
+                        if(messagesa[i].contains(sprite.getId())) {
+                            sprite.updateToString(messagesa[i]);
+                            messagesa[i] = "";
                         }
-                        if (!found) {
-
-                            if(messagesa[i].contains("player.png"))
-                                client.sprites.add(new Player(messagesa[i]));
-                            else if(messagesa[i].contains("tree.png"))
-                                client.sprites.add(new Tree(messagesa[i]));
-                            else if(messagesa[i].contains("zombie.png"))
-                                client.sprites.add(new Zombie(messagesa[i]));
-                            System.out.println("added " + messagesa[i]);
-
-                            client.sprites.get(client.sprites.size() - 1).updateToString(s);
+                    }
+                }
+                for(int i = 0; i < messagesa.length - 1; i++) {
+                    if(!messagesa[i].equals("")) {
+                        if(messagesa[i].contains("player")) {
+                            client.sprites.add(new Player(messagesa[i]));
+                        } else if(messagesa[i].contains("bullet")) {
+                            client.sprites.add(new Bullet(messagesa[i]));
+                        } else if(messagesa[i].contains("tree")) {
+                            client.sprites.add(new Tree(messagesa[i]));
+                        } else if(messagesa[i].contains("zombie")) {
+                            client.sprites.add(new Zombie(messagesa[i]));
                         }
                     }
                 }
@@ -182,16 +182,17 @@ public class Client {
                             }
                         }
                     }
-
-                    message.append(sprite.toString()).append(",");
                 }
+                message.append(sprite.toString()).append(",");
             }
+
+            message.append(time);
             clientThread.send(message.toString());
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                Thread.sleep(10);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
         }
     }
     public void drawMinimap(Graphics g, int mapWidth, int mapHeight){

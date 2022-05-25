@@ -11,7 +11,7 @@ public class Bullet extends Sprite {
         super.width = size;
         super.height = size;
         this.speed = speed;
-        super.id = UUID.randomUUID();
+        super.id = UUID.randomUUID().toString();
         super.x = x;
         super.y = y;
         super.angle = angle;
@@ -32,7 +32,7 @@ public class Bullet extends Sprite {
         this.vx = vx * Math.cos(from.angle);
         this.vy = vy * Math.sin(from.angle);
         this.speed = speed;
-        super.id = UUID.randomUUID();
+        super.id = UUID.randomUUID().toString();
         super.image = "/bullet.png";
         this.angle = from.angle;
     }
@@ -56,7 +56,7 @@ public class Bullet extends Sprite {
     public void updateToString(String info) {
         if(info.length() < 2) return;
         String[] split = info.substring(2, info.length() - 2).split(";");
-        if(id == null) id = UUID.fromString(split[0]);
+        if(id == null) id = UUID.fromString(split[0]).toString();
         x = Double.parseDouble(split[1]);
         y = Double.parseDouble(split[2]);
         width = Integer.parseInt(split[3]);

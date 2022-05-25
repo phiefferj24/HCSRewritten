@@ -46,35 +46,45 @@ public class Server {
         public void onMessage(String message) {
 
             String m = message;
-            sprites.clear();
             String[] split = m.split(",");
-            for (int i = 0; i < split.length - 1; i++) {
-                String ma = split[i];
-                if(ma.contains("tree")) {
-                    sprites.add(new Tree(ma));
-                } else if (ma.contains("zombie")) {
-                    sprites.add(new Zombie(ma));
-                } else if (ma.contains("bullet")) {
-                    sprites.add(new Bullet(ma));
-                } else if (ma.contains("player")) {
-                    sprites.add(new Player(ma));
-                } else if (ma.contains("pig")) {
-                    sprites.add(new Pig(ma));
+            for(int j = 0; j < sprites.size(); j++) {
+                Sprite sprite = sprites.get(j);
+                for (int i = 0; i < split.length - 1; i++) {
+                    if(split[i].contains(sprite.getId())) {
+                        sprite.updateToString(split[i]);
+                        split[i] = "";
+                    }
+                }
+            }
+            for(int i = 0; i < split.length - 1; i++) {
+                if(!split[i].equals("")) {
+                    if(split[i].contains("player")) {
+                        sprites.add(new Player(split[i]));
+                    } else if(split[i].contains("bullet")) {
+                        sprites.add(new Bullet(split[i]));
+                    } else if(split[i].contains("tree")) {
+                        sprites.add(new Tree(split[i]));
+                    } else if(split[i].contains("zombie")) {
+                        sprites.add(new Zombie(split[i]));
+                    }
                 }
             }
             double time = Double.parseDouble(split[split.length - 1]);
             double delta = time - System.currentTimeMillis();
+            time = System.currentTimeMillis();
             sprites.forEach((s) -> s.step(delta));//TODO delta time?
 
             StringBuilder messageBuilder = new StringBuilder();
             for(Sprite s: sprites)
                  messageBuilder.append(s.toString()).append(",");
-            messageBuilder.append(m);
+            messageBuilder.append(time);
             message = messageBuilder.toString();
-
-
-
-            send(message.substring(0,message.length()-1));
+            send(message);
+//            try {
+//                Thread.sleep(10);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
         }
     }
     public static class ServerThread extends Thread {

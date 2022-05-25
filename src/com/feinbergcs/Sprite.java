@@ -7,11 +7,11 @@ public abstract class Sprite {
     public int width, height;
     public double angle;
     public String image;
-    public UUID id;
-    public void setId(UUID id) {
+    public String id;
+    public void setId(String id) {
         this.id = id;
     }
-    public UUID getId() {
+    public String getId() {
         return id;
     }
     public void setImage(String image) {
@@ -22,9 +22,6 @@ public abstract class Sprite {
     }
     public void setY(int y) {
         this.y = y;
-    }
-    public void setUUID(UUID id) {
-        this.id = id;
     }
     public void setWidth(int width) {
         this.width = width;

@@ -11,7 +11,7 @@ public class Player extends Sprite {
     private double vx;
     private double vy;
     public Player(int x, int y, int width, int height, String image, double vx, double vy) {
-        id = UUID.randomUUID();
+        id = UUID.randomUUID().toString();
         this.x = x;
         this.y = y;
         this.width = width;
@@ -69,9 +69,8 @@ public class Player extends Sprite {
 
     @Override
     public void updateToString(String info) {
-        if(info.length() < 2) return;
-        String[] split = info.substring(2, info.length() - 2).split(";");
-        if(id == null) id = UUID.fromString(split[0]);
+        String[] split = info.substring(1, info.length() - 2).split(";");
+        id = split[0];
         x = Double.parseDouble(split[1]);
         y = Double.parseDouble(split[2]);
         width = Integer.parseInt(split[3]);
