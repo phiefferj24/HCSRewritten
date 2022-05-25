@@ -16,8 +16,6 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import static java.lang.Math.pow;
-
 public class Client {
 
     // COSTS
@@ -36,8 +34,8 @@ public class Client {
     public static boolean[] downKeys = new boolean[256];
     public static final int WINDOW_WIDTH = 1280;
     public static final int WINDOW_HEIGHT = 720;
-    public static double MONEY_RATE = 0.01;
-    public static double money = 250;
+    public static final double MONEY_RATE = 0.01;
+    public static double money = 10000;
     public static final double AMMO_RATE = 0.005;
     public static double ammo = 50;
     public static int clickX = 0;
@@ -50,7 +48,6 @@ public class Client {
     public ArrayList<Sprite> spritesToAdd = new ArrayList<Sprite>();
     public boolean onRight = false;
     public static boolean shop = false;
-    public static double deathTimer = 0;
     public static LinkedBlockingQueue<String> messages = new LinkedBlockingQueue<>();
 
     private static ArrayList<File> soundtrack = new ArrayList<File>();
@@ -73,37 +70,49 @@ public class Client {
             public void paintComponent(Graphics g) {
                 g.setColor(new Color(11, 173, 14));
                 g.fillRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+                double playerX=0;
+                double playerY=0;
                 Player p = client.getPlayer();
-                if(p == null) return;
-                double playerX = p.x + p.width/2;
-                double playerY = p.y + p.height/2;
+                if(p != null) {
+                    playerX = p.x + p.width/2;
+                    playerY = p.y + p.height/2;
+                }
                 for (int i = 0; i < client.sprites.size() && p != null; i++) {
                     Sprite sprite = client.sprites.get(i);
                     //System.out.println("outside the for: " + sprites.get(i).getImage());
-                    double playerCX = client.sprites.get(0).getX() + client.sprites.get(0).getWidth() / 2;
-                    double playerCY = client.sprites.get(0).getY() + client.sprites.get(0).getHeight() / 2;
-                    double cx = client.sprites.get(i).getX() + client.sprites.get(0).getWidth() / 2;
-                    double cy = client.sprites.get(i).getY() + client.sprites.get(0).getHeight() / 2;
-                    if (Math.sqrt((playerCX - cx) * (playerCX - cx) + (playerCY - cy) * (playerCY - cy)) < 1200)
-                        drawImage(g, loadImage(sprite.getImage()), sprite.getX() + ((WINDOW_WIDTH / 2) - playerX), sprite.getY() + ((WINDOW_HEIGHT / 2) - playerY), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
+                    if(sprite.getId().equals(Client.playerID))
+                    {
+                        if(died)
+                        {
+                            //TODO: FIX THIS THING
+                            g.setColor(new Color(255, 255, 255));
+                            g.fillRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+                            g.setFont(new Font("Arial", Font.BOLD, 100));
+                            String dead = "YOU HAVE DIED! Final Score: " + money;
+                            g.drawString(dead, (1280/2), (720/2));
+                            try {
+                                Thread.sleep(10000);
+                            }
+                            catch (Exception e){
+                                throw new RuntimeException("died");
+                            }
+                            System.exit(0);
+                            return;
+                        }
+                    }
+                    double playerCX = client.sprites.get(0).getX()+client.sprites.get(0).getWidth()/2;
+                    double playerCY = client.sprites.get(0).getY()+client.sprites.get(0).getHeight()/2;
+                    double cx = client.sprites.get(i).getX()+client.sprites.get(0).getWidth()/2;
+                    double cy = client.sprites.get(i).getY()+client.sprites.get(0).getHeight()/2;
+                    if(Math.sqrt((playerCX-cx)*(playerCX-cx)+(playerCY-cy)*(playerCY-cy))<770)
+                        drawImage(g, loadImage(sprite.getImage()), sprite.getX()+((WINDOW_WIDTH/2)-playerX), sprite.getY()+((WINDOW_HEIGHT/2)-playerY), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
                 }
+                client.drawMinimap(g, 10000, 10000);
 
-                if(shop) drawShop(g);
-                else client.drawMinimap(g, MAP_WIDTH, MAP_HEIGHT);
-                if(deathTimer > 0) {
-                    MONEY_RATE = 0;
-                    //TODO: FIX THIS THING
-                    g.setColor(new Color(255, 255, 255));
-                    g.fillRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-                    g.setColor(new Color(0, 0, 0));
-                    g.setFont(new Font("Arial", Font.BOLD, 100));
-                    String dead1 = "YOU HAVE DIED!";
-                    String dead2 = "Final Score: " + String.format("%.2f", money);
-                    FontMetrics fm = g.getFontMetrics();
-                    g.drawString(dead1, (1280/2) - fm.stringWidth(dead1)/2, (720/2)-120);
-                    g.drawString(dead2, (1280/2) - fm.stringWidth(dead2)/2, (720/2)+20);
-                    if(deathTimer > 10000) System.exit(0);
-                }
+
+                if(shop)
+                    drawShop(g);
+            client.drawMinimap(g, MAP_WIDTH, MAP_HEIGHT);
             }
 
             @Override
@@ -300,9 +309,7 @@ public class Client {
             StringBuilder messageBuilder = new StringBuilder();
             Player playergot = client.getPlayer();
             if(playergot != null) {
-                if(playergot.getHealth() <= 0) {
-                    deathTimer += delta;
-                }
+
                 double xdel = 0;
                 double ydel = 0;
                 if(Client.downKeys[KeyEvent.VK_W]) {
@@ -460,7 +467,7 @@ public class Client {
         g.drawString(pos, WINDOW_WIDTH - metrics.stringWidth(pos) - 10, minimapSize + FONT_SIZE + 20);
         String money = "Money: $" + String.format("%.2f", Client.money);
         g.drawString(money, WINDOW_WIDTH - metrics.stringWidth(money) - 10, minimapSize + FONT_SIZE + 45);
-        String health = "Health: " + String.format("%.2f", player.getHealth()) + " HP";
+        String health = "Health: " + player.getHealth();
         if(player.getHealth()<=0)
         {
             died=true;
@@ -565,7 +572,7 @@ public class Client {
             sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
         }
         if ((playerCurrX != ((Player) sprite).getX() || playerCurrY != ((Player) sprite).getY()) && wood.getImage().contains("zombie")) {
-            ((Player)sprite).setHealth(((Player)sprite).getHealth()-2*(wood.getHeight()/100.0));
+            ((Player)sprite).setHealth(((Player)sprite).getHealth()-1);
         }
     }
 
