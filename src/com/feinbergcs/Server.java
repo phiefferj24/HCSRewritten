@@ -14,6 +14,7 @@ public class Server {
     public static void main(String[] args) throws InterruptedException {
         Listener l = new Listener(9001);
         l.start();
+        //l.sprites.add(new Zombie(500,500,100,100, "/tree.png"));
         for(int i = 0; i < 10000; i+=Math.random()*1200+400)
             for(int j = 0; j < 10000; j+=Math.random()*1200+400)
                 l.sprites.add(new Tree(i,j,100,100, "/tree.png"));

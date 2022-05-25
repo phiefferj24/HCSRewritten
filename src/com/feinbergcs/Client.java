@@ -288,6 +288,8 @@ public class Client {
     }
 
     public void collide(Sprite sprite, Sprite wood) {
+        double playerCurrX = ((Player) sprite).getX();
+        double playerCurrY = ((Player) sprite).getY();
         Rectangle2D.Double woodRect = new Rectangle2D.Double(wood.getX(), wood.getY(), wood.getWidth(), wood.getHeight());
         Line2D top = new Line2D.Double(sprite.getX(), sprite.getY(), sprite.getX() + sprite.getWidth(), sprite.getY());
         Line2D bottom = new Line2D.Double(sprite.getX(), sprite.getY() + sprite.getHeight(), sprite.getX() + sprite.getWidth(), sprite.getY() + sprite.getHeight());
@@ -296,63 +298,63 @@ public class Client {
         if (woodRect.intersectsLine(top)) {
             if (woodRect.intersectsLine(left)) {
                 if (Math.abs(woodRect.getMaxX() - sprite.getX()) < Math.abs(woodRect.getMaxY() - sprite.getY())) {
-                    if(sprite.getImage().equals("/player.png") && wood.getImage().equals("/wood.png"))
-                    {
-                        System.out.println("PLAYER HEALTH: " + ((Player)sprite).getHealth());
-                        ((Player)sprite).setHealth(((Player)sprite).getHealth()-1);
-                        System.out.println("AFTERUPDATE HEALTH: " + ((Player)sprite).getHealth());
-                    }
+                    //System.out.println("top collides 1");
+
                     sprite.setX((int) woodRect.getMaxX());
                 } else {
+                    // System.out.println("top collides 2");
+
                     sprite.setY((int) woodRect.getMaxY());
                 }
             } else if (woodRect.intersectsLine(right)) {
                 if (Math.abs(woodRect.getMinX() - sprite.getX() - sprite.getWidth()) < Math.abs(woodRect.getMaxY() - sprite.getY())) {
-                    if(sprite.getImage().equals("/player.png") && wood.getImage().equals("/wood.png"))
-                    {
-                        System.out.println("PLAYER HEALTH: " + ((Player)sprite).getHealth());
-                        ((Player)sprite).setHealth(((Player)sprite).getHealth()-1);
-                        System.out.println("AFTERUPDATE HEALTH: " + ((Player)sprite).getHealth());
-                    }
+                    // System.out.println("right collides 1");
+
                     sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
                 } else {
+                    // System.out.println("right collides 2");
                     sprite.setY((int) woodRect.getMaxY());
                 }
             } else {
+                //  System.out.println("bruh collides 1");
                 sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
             }
         } else if (woodRect.intersectsLine(bottom)) {
             if (woodRect.intersectsLine(left)) {
                 if (Math.abs(woodRect.getMaxX() - sprite.getX()) < Math.abs(woodRect.getMinY() - sprite.getY() - sprite.getHeight())) {
-                    if(sprite.getImage().equals("/player.png") && wood.getImage().equals("wood.png"))
-                    {
-                        System.out.println("PLAYER HEALTH: " + ((Player)sprite).getHealth());
-                        ((Player)sprite).setHealth(((Player)sprite).getHealth()-1);
-                        System.out.println("AFTERUPDATE HEALTH: " + ((Player)sprite).getHealth());
-                    }
+                    //   System.out.println("left collides 1");
+
                     sprite.setX((int) woodRect.getMaxX());
                 } else {
+                    //System.out.println("left collides 2");
+
                     sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
                 }
             } else if (woodRect.intersectsLine(right)) {
                 if (Math.abs(woodRect.getMinX() - sprite.getX() - sprite.getWidth()) < Math.abs(woodRect.getMinY() - sprite.getY() - sprite.getHeight())) {
-                    if(sprite.getImage().equals("/player.png") && wood.getImage().equals("wood.png"))
-                    {
-                        System.out.println("PLAYER HEALTH: " + ((Player)sprite).getHealth());
-                        ((Player)sprite).setHealth(((Player)sprite).getHealth()-1);
-                        System.out.println("AFTERUPDATE HEALTH: " + ((Player)sprite).getHealth());
-                    }
+                    //System.out.println("rightbruh collides 1");
+
                     sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
                 } else {
+                    //System.out.println("rightbruh collides 2");
                     sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
                 }
             } else {
+
                 sprite.setY((int) woodRect.getMaxY());
             }
         } else if (woodRect.intersectsLine(left)) {
+
             sprite.setX((int) woodRect.getMaxX());
         } else if (woodRect.intersectsLine(right)) {
+
             sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
+        }
+        if ((playerCurrX != ((Player) sprite).getX() || playerCurrY != ((Player) sprite).getY()) && wood.getImage().equals("/tree   .png"))
+        {
+            System.out.println("PRIOR TO FORTNITE: " + ((Player)sprite).getHealth());
+            ((Player)sprite).setHealth(((Player)sprite).getHealth()-10);
+            System.out.println("POST TO FORTNITE: " + ((Player)sprite).getHealth());
         }
     }
 
