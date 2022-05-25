@@ -29,7 +29,7 @@ public class Zombie extends Sprite{
 
     public void step(double dt, ArrayList<Sprite> sprites) {
         ArrayList<Sprite> players = new ArrayList<>();
-        double speed = 5;
+        double speed = 0.3;
         double playerCX = 0;
         double playerCY = 0;
 
@@ -52,11 +52,11 @@ public class Zombie extends Sprite{
             {
                 playerCX = s.getX()+s.getWidth()/2;
                 playerCY = s.getY()+s.getHeight()/2;
-                if(Math.sqrt((playerCX-cx)*(playerCX-cx)+(playerCY-cy)*(playerCY-cy))>1000) {
+                if(Math.sqrt((playerCX-cx)*(playerCX-cx)+(playerCY-cy)*(playerCY-cy))>5000) {
 
                     seesPlayer = false;
                 }
-                if(Math.sqrt((playerCX-cx)*(playerCX-cx)+(playerCY-cy)*(playerCY-cy))<300) {
+                if(Math.sqrt((playerCX-cx)*(playerCX-cx)+(playerCY-cy)*(playerCY-cy))<1000) {
 
                     seesPlayer = true;
                     break;
@@ -90,8 +90,8 @@ public class Zombie extends Sprite{
         double theta = Math.atan2(y,x);
         setAngle(theta-Math.PI/2);
         if(Math.sqrt((cx-gotoX)*(cx-gotoX)+(cy-gotoY)*(cy-gotoY))>20)
-            setX((int)(getX()+speed*Math.cos(theta)));
-        setY((int)(getY()+speed*Math.sin(theta)));
+            setX((int)(getX()+speed*Math.cos(theta)*dt));
+        setY((int)(getY()+speed*Math.sin(theta)*dt));
     }
 
     @Override

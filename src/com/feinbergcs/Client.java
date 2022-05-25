@@ -35,7 +35,9 @@ public class Client {
     public static final int WINDOW_WIDTH = 1280;
     public static final int WINDOW_HEIGHT = 720;
     public static final double MONEY_RATE = 0.01;
+    public static final double AMMO_RATE = 0.005;
     public static double money = 0;
+    public static double ammo = 50;
     public static int clickX = 0;
     public static int clickY = 0;
     public static int mouseX = 0;
@@ -88,7 +90,8 @@ public class Client {
             @Override
             public void keyPressed(int key) {
                 downKeys[key] = true;
-                if(key == KeyEvent.VK_SPACE) {
+                if(key == KeyEvent.VK_SPACE && ammo >= 1) {
+                    ammo -= 1;
                     client.onRight = !client.onRight;
                     client.spritesToAdd.add(new Bullet(client.getPlayer(), 1, 1, 1, client.onRight, 8));
                 }
@@ -123,9 +126,25 @@ public class Client {
                 if(p == null) return;
                 if(button == MouseEvent.BUTTON1) {
                     if(selectedIndex == 0 && money >= WALL_COST) {
+                        Rectangle2D r1 = new Rectangle2D.Double(((int) relX - 32) / 64 * 64 + 32, ((int) relY - 32) / 64 * 64 + 32, 64, 64);
+                        for(int i = 0; i < client.sprites.size(); i++) {
+                            Sprite sprite = client.sprites.get(i);
+                            Rectangle2D r2 = new Rectangle2D.Double(sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
+                            if(r1.intersects(r2)) {
+                                return;
+                            }
+                        }
                         client.spritesToAdd.add(new Wall(((int) relX - 32) / 64 * 64 + 32, ((int) relY - 32) / 64 * 64 + 32, 64, 64, "/wall.png", 0));
                         money -= WALL_COST;
                     } else if(selectedIndex == 1 && money >= TURRET_COST) {
+                        Rectangle2D r1 = new Rectangle2D.Double(relX - 50, (int)relY - 50, 100, 100);
+                        for(int i = 0; i < client.sprites.size(); i++) {
+                            Sprite sprite = client.sprites.get(i);
+                            Rectangle2D r2 = new Rectangle2D.Double(sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
+                            if(r1.intersects(r2)) {
+                                return;
+                            }
+                        }
                         client.spritesToAdd.add(new Turret((int)relX - 50, (int)relY - 50, 100, 100, "/turret.png"));
                         money -= TURRET_COST;
                     }
@@ -138,6 +157,16 @@ public class Client {
                                 Wall newWall = new Wall(sprite.toString());
                                 newWall.setImage("");
                                 client.spritesToAdd.add(newWall);
+                                money += WALL_COST / 4;
+                                break;
+                            }
+                        } else if(sprite.getImage().contains("turret")) {
+                            Rectangle2D turret = new Rectangle2D.Double(sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
+                            if(turret.contains(relX, relY)) {
+                                Turret newTurret = new Turret(sprite.toString());
+                                newTurret.setImage("");
+                                client.spritesToAdd.add(newTurret);
+                                money += TURRET_COST / 4;
                                 break;
                             }
                         }
@@ -164,6 +193,7 @@ public class Client {
             String message = messages.take();
             double delta = System.currentTimeMillis() - lastTime;
             money += delta * MONEY_RATE;
+            ammo += delta * AMMO_RATE;
             lastTime = System.currentTimeMillis();
             double time = System.currentTimeMillis();
             String[] messagesa;
@@ -330,6 +360,8 @@ public class Client {
         g.drawString(money, WINDOW_WIDTH - metrics.stringWidth(money) - 10, minimapSize + FONT_SIZE + 45);
         String health = "Health: " + player.getHealth();
         g.drawString(health, WINDOW_WIDTH - metrics.stringWidth(health) - 10, minimapSize + FONT_SIZE + 70);
+        String ammo = "Ammo: " + (int)Client.ammo;
+        g.drawString(ammo, WINDOW_WIDTH - metrics.stringWidth(ammo) - 10, minimapSize + FONT_SIZE + 95);
 
         // hotbar
         g.setColor(Color.WHITE);

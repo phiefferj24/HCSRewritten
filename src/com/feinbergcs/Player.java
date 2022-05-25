@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.UUID;
 
 public class Player extends Sprite {
-    public double speed = 1;
+    public double speed = 0.5;
     public double vx;
     public double vy;
     public double health;
