@@ -4,6 +4,7 @@ import javax.imageio.ImageIO;
 import javax.sound.sampled.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -16,9 +17,18 @@ import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Client {
+
+    // COSTS
+
+    public static final double WALL_COST = 100;
+
+    // OTHER STUFF
+
     public static boolean[] downKeys = new boolean[256];
     public static final int WINDOW_WIDTH = 1280;
     public static final int WINDOW_HEIGHT = 720;
+    public static final double MONEY_RATE = 0.01;
+    public static double money = 0;
     public static int clickX = 0;
     public static int clickY = 0;
     public static int mouseX = 0;
@@ -37,6 +47,7 @@ public class Client {
         //soundtrack.add(new File(Client.class.getResource("/tetris.wav").getPath()));
         //play(soundtrack.get((int)(Math.random()*soundtrack.size())), true);
         //System.out.println("THIS IS THE SOUNDTRAD: " + soundtrack.get((int)(Math.random()*soundtrack.size())));
+
         Client client = new Client();
         Socket socket = client.connect("localhost", 9001);
         ClientThread clientThread = new ClientThread(socket);
@@ -74,11 +85,31 @@ public class Client {
             }
 
             @Override
-            public void mouseClicked(int x, int y) {
+            public void mouseClicked(int x, int y, int button) {
                 //play(new File(Client.class.getResource("/hit.wav").getPath()),false);
                 clickX = x;
                 clickY = y;
-
+                double relX = x - WINDOW_WIDTH/2 + client.getPlayer().x + client.getPlayer().width/2;
+                double relY = y - WINDOW_HEIGHT/2 + client.getPlayer().y + client.getPlayer().height/2;
+                Player p = client.getPlayer();
+                if(p == null) return;
+                if(button == MouseEvent.BUTTON1 && money >= WALL_COST) {
+                    client.spritesToAdd.add(new Wall(relX - 32, relY - 32, 64, 64, "/wall.png", 0));
+                    money -= WALL_COST;
+                } if (button == MouseEvent.BUTTON3) {
+                    for(int i = 0; i < client.sprites.size(); i++) {
+                        Sprite sprite = client.sprites.get(i);
+                        if(sprite.getImage().contains("wall")) {
+                            Rectangle2D wall = new Rectangle2D.Double(sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
+                            if(wall.contains(relX, relY)) {
+                                Wall newWall = new Wall(sprite.toString());
+                                newWall.setImage("");
+                                client.spritesToAdd.add(newWall);
+                                break;
+                            }
+                        }
+                    }
+                }
             }
         });
         Thread t = new Thread(d);
@@ -99,6 +130,7 @@ public class Client {
             //while(messages.isEmpty());
             String message = messages.take();
             double delta = System.currentTimeMillis() - lastTime;
+            money += delta * MONEY_RATE;
             lastTime = System.currentTimeMillis();
             double time = System.currentTimeMillis();
             String[] messagesa;
@@ -125,6 +157,8 @@ public class Client {
                         client.sprites.add(new Tree(messagesa[i]));
                     } else if (messagesa[i].contains("zombie")) {
                         client.sprites.add(new Zombie(messagesa[i]));
+                    } else if (messagesa[i].contains("wall")) {
+                        client.sprites.add(new Wall(messagesa[i]));
                     }
                 }
             }
@@ -135,6 +169,11 @@ public class Client {
                         client.sprites.remove(sprite);
                         i--;
                     }
+                }
+                if(sprite.getImage().equals("")) {
+                    System.out.println("removing");
+                    client.sprites.remove(sprite);
+                    i--;
                 }
             }
             time = System.currentTimeMillis();
@@ -239,6 +278,8 @@ public class Client {
         FontMetrics metrics = g.getFontMetrics();
         String pos = "(" + (int)player.x + ", " + (int)player.y + ")";
         g.drawString(pos, WINDOW_WIDTH - metrics.stringWidth(pos) - 10, minimapSize + FONT_SIZE + 20);
+        String money = "$" + String.format("%.2f", Client.money);
+        g.drawString(money, WINDOW_WIDTH - metrics.stringWidth(money) - 10, minimapSize + FONT_SIZE + 45);
     }
 
     private static void drawImage(Graphics g, BufferedImage loadImage, double x, double y, int width, int height, double angle) {
@@ -332,6 +373,7 @@ public class Client {
         return socket;
     }
     public Player getPlayer() {
+        if(playerID == null) return null;
         for(int i = 0; i < sprites.size(); i++) {
             if (sprites.get(i).getId().toString().equals(playerID.toString())) {
                 return (Player) sprites.get(i);
