@@ -1,5 +1,6 @@
 package com.feinbergcs;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class Zombie extends Sprite{
@@ -25,31 +26,68 @@ public class Zombie extends Sprite{
     }
 
 
-    @Override
-    public void step(double dt) {
-        double speed = 1.5;
-        System.out.println(t);
+
+    public void step(double dt, ArrayList<Sprite> sprites) {
+        double speed = 5;
+        double playerCX = 0;
+        double playerCY = 0;
+
+        double cx = this.x +width/2;
+        double cy = this.y +height/2;
+
+
+        if(sprites == null)
+            return;
+        for(Sprite s: sprites)
+        {
+
+            seesPlayer = false;
+
+            if(s instanceof Player)
+            {
+                playerCX = s.getX()+s.getWidth()/2;
+                playerCY = s.getY()+s.getHeight()/2;
+                if(Math.sqrt((playerCX-cx)*(playerCX-cx)+(playerCY-cy)*(playerCY-cy))<300) {
+
+                    seesPlayer = true;
+                    break;
+                }
+            }
+        }
+
         if(!seesPlayer)
         {
-            if(t<150) {
-                System.out.println(gotoX);
-                System.out.println(gotoY);
+            if(t<2500000)
                 t += dt;
-                double x =  (gotoX) - (this.x);
-                double y = (gotoY) - (this.y);
-
-                double theta = Math.atan2(gotoY,gotoX);
-                setX((int)(getX()+speed*Math.cos(theta)));
-                setY((int)(getY()+speed*Math.sin(theta)));
-            }
             else
             {
-                gotoX=(int)(x+(Math.random()*100)-50);
-                gotoY=(int)(y+(Math.random()*100)-50);
+                gotoX=(int)(int)(cx+(Math.random()*100)-50);
+                gotoY=(int)(int)(cy+(Math.random()*100)-50);
                 t=0;
             }
 
         }
+        else
+        {
+            gotoX=(int)playerCX;
+            gotoY=(int)playerCY;
+            t=0;
+        }
+
+
+        double x =  (gotoX) - (cx);
+        double y = (gotoY) - (cy);
+
+        double theta = Math.atan2(y,x);
+        setAngle(theta-90);
+        if(Math.sqrt((cx-gotoX)*(cx-gotoX)+(cy-gotoY)*(cy-gotoY))>20)
+            setX((int)(getX()+speed*Math.cos(theta)));
+        setY((int)(getY()+speed*Math.sin(theta)));
+    }
+
+    @Override
+    public void step(double deltatime) {
+        step(deltatime,null);
     }
 
     @Override
