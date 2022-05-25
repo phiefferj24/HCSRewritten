@@ -88,7 +88,7 @@ public class Zombie extends Sprite{
         double y = (gotoY) - (cy);
 
         double theta = Math.atan2(y,x);
-        setAngle(theta-90);
+        setAngle(theta-Math.PI/2);
         if(Math.sqrt((cx-gotoX)*(cx-gotoX)+(cy-gotoY)*(cy-gotoY))>20)
             setX((int)(getX()+speed*Math.cos(theta)));
         setY((int)(getY()+speed*Math.sin(theta)));
