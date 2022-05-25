@@ -290,6 +290,14 @@ public class Client {
         g.drawString(pos, WINDOW_WIDTH - metrics.stringWidth(pos) - 10, minimapSize + FONT_SIZE + 20);
         String money = "$" + String.format("%.2f", Client.money);
         g.drawString(money, WINDOW_WIDTH - metrics.stringWidth(money) - 10, minimapSize + FONT_SIZE + 45);
+        String health = "Health: " + Double.toString(player.getHealth());
+        for(int i = 0; i < sprites.size(); i++) {
+            if(sprites.get(i).getId().equals(Client.playerID))
+            {
+                health= "Health: " + Double.toString(player.getHealth());
+            }
+        }
+        g.drawString(health, WINDOW_WIDTH - metrics.stringWidth(pos) - 10, minimapSize + FONT_SIZE + 70);
     }
 
     private static void drawImage(Graphics g, BufferedImage loadImage, double x, double y, int width, int height, double angle) {
