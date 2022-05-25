@@ -129,7 +129,7 @@ public class Server {
                             ((Zombie)s).step(delta,l.sprites);
                             for(int j = 0; j < l.sprites.size(); j++) {
                                 Sprite s2 = l.sprites.get(j);
-                                if(s2.image.contains("wall") || s2.image.contains("tree")) {
+                                if(s2.image.contains("wall") || s2.image.contains("tree") || s2.image.contains("stone") || s2.image.contains("bush")) {
                                     collide(s,s2);
                                 } else if(s2.image.contains("bullet")) {
                                     Bullet b = (Bullet)s2;

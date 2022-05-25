@@ -22,12 +22,15 @@ public class Client {
     public static boolean died=false;
     public static final double WALL_COST = 50;
     public static final double TURRET_COST = 100;
-
+    public static double moneyStore = 0;
     public static int selectedIndex = 0;
     public static final int TOTAL_ITEMS = 2;
     public static final String[] ITEM_NAMES = {"wall", "turret"};
 
     // OTHER STUFF
+
+    public static double deathCounter = 0;
+    public static boolean playedDeathSound = false;
 
     public static final int MAP_WIDTH = 10000;
     public static final int MAP_HEIGHT = 10000;
@@ -84,19 +87,22 @@ public class Client {
                     {
                         if(died)
                         {
+                            if(!playedDeathSound) {
+                                moneyStore = money;
+                                play(new File(Client.class.getResource("/gameover.wav").getPath()), false);
+                                playedDeathSound = true;
+                            }
                             //TODO: FIX THIS THING
                             g.setColor(new Color(255, 255, 255));
                             g.fillRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
                             g.setFont(new Font("Arial", Font.BOLD, 100));
-                            String dead = "YOU HAVE DIED! Final Score: " + money;
-                            g.drawString(dead, (1280/2), (720/2));
-                            try {
-                                Thread.sleep(10000);
-                            }
-                            catch (Exception e){
-                                throw new RuntimeException("died");
-                            }
-                            System.exit(0);
+                            g.setColor(new Color(0, 0, 0));
+                            String dead1 = "YOU HAVE DIED!";
+                            String dead2 = "Final Score: " + String.format("%.2f", moneyStore == 0 ? money : moneyStore);
+                            FontMetrics fm = g.getFontMetrics();
+                            g.drawString(dead1, (WINDOW_WIDTH/2) - fm.stringWidth(dead1)/2, (WINDOW_HEIGHT/2) - 120);
+                            g.drawString(dead2, (WINDOW_WIDTH/2) - fm.stringWidth(dead2)/2, (WINDOW_HEIGHT/2) - 20);
+                            if(deathCounter > 5000) System.exit(0);
                             return;
                         }
                     }
@@ -107,12 +113,9 @@ public class Client {
                     if(Math.sqrt((playerCX-cx)*(playerCX-cx)+(playerCY-cy)*(playerCY-cy))<770)
                         drawImage(g, loadImage(sprite.getImage()), sprite.getX()+((WINDOW_WIDTH/2)-playerX), sprite.getY()+((WINDOW_HEIGHT/2)-playerY), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
                 }
-                client.drawMinimap(g, 10000, 10000);
-
-
                 if(shop)
                     drawShop(g);
-            client.drawMinimap(g, MAP_WIDTH, MAP_HEIGHT);
+                client.drawMinimap(g, MAP_WIDTH, MAP_HEIGHT);
             }
 
             @Override
@@ -237,7 +240,6 @@ public class Client {
         client.sprites.add(new Player(25, 25, 100, 100, "/player.png"));
         //client.sprites.add(new Tree(500, 500, 100, 100, "/tree.png"));
         playerID = client.sprites.get(0).getId();
-
         double lastTime = System.currentTimeMillis();
         StringBuilder fm = new StringBuilder();
         for(int i = 0; i < client.sprites.size(); i++) {
@@ -250,6 +252,7 @@ public class Client {
             //while(messages.isEmpty());
             String message = messages.take();
             double delta = System.currentTimeMillis() - lastTime;
+            if(died) deathCounter += delta;
             money += delta * MONEY_RATE;
             ammo += delta * AMMO_RATE;
             lastTime = System.currentTimeMillis();
@@ -379,17 +382,12 @@ public class Client {
         {
             final Clip clip = (Clip) AudioSystem.getLine(new Line.Info(Clip.class));
 
-            clip.addLineListener(new LineListener()
-            {
-                @Override
-                public void update(LineEvent event)
+            clip.addLineListener((event) -> {
+                if (event.getType() == LineEvent.Type.STOP)
                 {
-                    if (event.getType() == LineEvent.Type.STOP)
-                    {
-                        clip.close();
-                        if(repeat)
-                            play(soundtrack.get((int)(Math.random()*soundtrack.size())), true);
-                    }
+                    clip.close();
+                    if(repeat)
+                        play(soundtrack.get((int)(Math.random()*soundtrack.size())), true);
                 }
             });
 
@@ -447,7 +445,7 @@ public class Client {
             Sprite sprite = sprites.get(i);
             double scaledX = sprite.getX() * minimapSize / mapWidth;
             double scaledY = sprite.getY() * minimapSize / mapHeight;
-            if(scaledX < DOT_SIZE / 2 || scaledY < DOT_SIZE/2 || scaledX > minimapSize - DOT_SIZE/2 || scaledY > minimapSize - DOT_SIZE/2) continue;
+            if(scaledX < 0 || scaledY < 0 || scaledX > minimapSize || scaledY > minimapSize) continue;
             if(sprite.image.contains("player")){
                 if(sprite.id.toString().equals(player.id.toString())) {
                     g.setColor(Color.BLUE);
@@ -468,7 +466,7 @@ public class Client {
         g.drawString(pos, WINDOW_WIDTH - metrics.stringWidth(pos) - 10, minimapSize + FONT_SIZE + 20);
         String money = "Money: $" + String.format("%.2f", Client.money);
         g.drawString(money, WINDOW_WIDTH - metrics.stringWidth(money) - 10, minimapSize + FONT_SIZE + 45);
-        String health = "Health: " + player.getHealth();
+        String health = "Health: " + String.format("%.2f", player.getHealth()) + " HP";
         if(player.getHealth()<=0)
         {
             died=true;
@@ -573,7 +571,7 @@ public class Client {
             sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
         }
         if ((playerCurrX != ((Player) sprite).getX() || playerCurrY != ((Player) sprite).getY()) && wood.getImage().contains("zombie")) {
-            ((Player)sprite).setHealth(((Player)sprite).getHealth()-1);
+            ((Player)sprite).setHealth(((Player)sprite).getHealth()-wood.getWidth()/100.0);
         }
     }
 
