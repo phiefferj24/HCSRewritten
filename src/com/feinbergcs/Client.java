@@ -286,18 +286,12 @@ public class Client {
         g.setColor(Color.BLACK);
         g.setFont(new Font("Arial", Font.BOLD, FONT_SIZE));
         FontMetrics metrics = g.getFontMetrics();
-        String pos = "(" + (int)player.x + ", " + (int)player.y + ")";
+        String pos = "Position: " + (int)player.x + ", " + (int)player.y;
         g.drawString(pos, WINDOW_WIDTH - metrics.stringWidth(pos) - 10, minimapSize + FONT_SIZE + 20);
-        String money = "$" + String.format("%.2f", Client.money);
+        String money = "Money: $" + String.format("%.2f", Client.money);
         g.drawString(money, WINDOW_WIDTH - metrics.stringWidth(money) - 10, minimapSize + FONT_SIZE + 45);
-        String health = "Health: " + Double.toString(player.getHealth());
-        for(int i = 0; i < sprites.size(); i++) {
-            if(sprites.get(i).getId().equals(Client.playerID))
-            {
-                health= "Health: " + Double.toString(player.getHealth());
-            }
-        }
-        g.drawString(health, WINDOW_WIDTH - metrics.stringWidth(pos) - 10, minimapSize + FONT_SIZE + 70);
+        String health = "Health: " + player.getHealth();
+        g.drawString(health, WINDOW_WIDTH - metrics.stringWidth(health) - 10, minimapSize + FONT_SIZE + 70);
     }
 
     private static void drawImage(Graphics g, BufferedImage loadImage, double x, double y, int width, int height, double angle) {
@@ -347,60 +341,41 @@ public class Client {
         if (woodRect.intersectsLine(top)) {
             if (woodRect.intersectsLine(left)) {
                 if (Math.abs(woodRect.getMaxX() - sprite.getX()) < Math.abs(woodRect.getMaxY() - sprite.getY())) {
-                    //System.out.println("top collides 1");
-
                     sprite.setX((int) woodRect.getMaxX());
                 } else {
-                    // System.out.println("top collides 2");
-
                     sprite.setY((int) woodRect.getMaxY());
                 }
             } else if (woodRect.intersectsLine(right)) {
                 if (Math.abs(woodRect.getMinX() - sprite.getX() - sprite.getWidth()) < Math.abs(woodRect.getMaxY() - sprite.getY())) {
-                    // System.out.println("right collides 1");
-
                     sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
                 } else {
-                    // System.out.println("right collides 2");
                     sprite.setY((int) woodRect.getMaxY());
                 }
             } else {
-                //  System.out.println("bruh collides 1");
                 sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
             }
         } else if (woodRect.intersectsLine(bottom)) {
             if (woodRect.intersectsLine(left)) {
                 if (Math.abs(woodRect.getMaxX() - sprite.getX()) < Math.abs(woodRect.getMinY() - sprite.getY() - sprite.getHeight())) {
-                    //   System.out.println("left collides 1");
-
                     sprite.setX((int) woodRect.getMaxX());
                 } else {
-                    //System.out.println("left collides 2");
-
                     sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
                 }
             } else if (woodRect.intersectsLine(right)) {
                 if (Math.abs(woodRect.getMinX() - sprite.getX() - sprite.getWidth()) < Math.abs(woodRect.getMinY() - sprite.getY() - sprite.getHeight())) {
-                    //System.out.println("rightbruh collides 1");
-
                     sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
                 } else {
-                    //System.out.println("rightbruh collides 2");
                     sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
                 }
             } else {
-
                 sprite.setY((int) woodRect.getMaxY());
             }
         } else if (woodRect.intersectsLine(left)) {
-
             sprite.setX((int) woodRect.getMaxX());
         } else if (woodRect.intersectsLine(right)) {
-
             sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
         }
-        if ((playerCurrX != ((Player) sprite).getX() || playerCurrY != ((Player) sprite).getY()) && wood.getImage().equals("/tree   .png"))
-        {
+        if ((playerCurrX != ((Player) sprite).getX() || playerCurrY != ((Player) sprite).getY()) && wood.getImage().contains("zombie")) {
             System.out.println("PRIOR TO FORTNITE: " + ((Player)sprite).getHealth());
             ((Player)sprite).setHealth(((Player)sprite).getHealth()-10);
             System.out.println("POST TO FORTNITE: " + ((Player)sprite).getHealth());
