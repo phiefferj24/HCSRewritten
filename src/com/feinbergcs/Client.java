@@ -19,16 +19,25 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class Client {
 
     // COSTS
+    public static boolean died=false;
+    public static final double WALL_COST = 50;
+    public static final double TURRET_COST = 100;
 
-    public static final double WALL_COST = 100;
+    public static int selectedIndex = 0;
+    public static final int TOTAL_ITEMS = 2;
+    public static final String[] ITEM_NAMES = {"wall", "turret"};
 
     // OTHER STUFF
 
+    public static final int MAP_WIDTH = 10000;
+    public static final int MAP_HEIGHT = 10000;
     public static boolean[] downKeys = new boolean[256];
     public static final int WINDOW_WIDTH = 1280;
     public static final int WINDOW_HEIGHT = 720;
     public static final double MONEY_RATE = 0.01;
     public static double money = 10000;
+    public static final double AMMO_RATE = 0.005;
+    public static double ammo = 50;
     public static int clickX = 0;
     public static int clickY = 0;
     public static int speed = 0;
@@ -71,6 +80,26 @@ public class Client {
                 for (int i = 0; i < client.sprites.size() && p != null; i++) {
                     Sprite sprite = client.sprites.get(i);
                     //System.out.println("outside the for: " + sprites.get(i).getImage());
+                    if(sprite.getId().equals(Client.playerID))
+                    {
+                        if(died)
+                        {
+                            //TODO: FIX THIS THING
+                            g.setColor(new Color(255, 255, 255));
+                            g.fillRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+                            g.setFont(new Font("Arial", Font.BOLD, 100));
+                            String dead = "YOU HAVE DIED! Final Score: " + money;
+                            g.drawString(dead, (1280/2), (720/2));
+                            try {
+                                Thread.sleep(10000);
+                            }
+                            catch (Exception e){
+                                throw new RuntimeException("died");
+                            }
+                            System.exit(0);
+                            return;
+                        }
+                    }
                     double playerCX = client.sprites.get(0).getX()+client.sprites.get(0).getWidth()/2;
                     double playerCY = client.sprites.get(0).getY()+client.sprites.get(0).getHeight()/2;
                     double cx = client.sprites.get(i).getX()+client.sprites.get(0).getWidth()/2;
@@ -83,18 +112,33 @@ public class Client {
 
                 if(shop)
                     drawShop(g);
+            client.drawMinimap(g, MAP_WIDTH, MAP_HEIGHT);
             }
 
             @Override
             public void keyPressed(int key) {
                 downKeys[key] = true;
-                if(key == KeyEvent.VK_SPACE) {
+                if(key == KeyEvent.VK_SPACE && ammo >= 1) {
+                    ammo -= 1;
                     client.onRight = !client.onRight;
                     client.spritesToAdd.add(new Bullet(client.getPlayer(), 1, 1, 1, client.onRight, 8));
                 }
                 if(key == KeyEvent.VK_C) {
                     shop = true;
                 }
+                switch(key) {
+                    case KeyEvent.VK_1 -> selectedIndex = 0;
+                    case KeyEvent.VK_2 -> selectedIndex = 1;
+                    case KeyEvent.VK_3 -> selectedIndex = 2;
+                    case KeyEvent.VK_4 -> selectedIndex = 3;
+                    case KeyEvent.VK_5 -> selectedIndex = 4;
+                    case KeyEvent.VK_6 -> selectedIndex = 5;
+                    case KeyEvent.VK_7 -> selectedIndex = 6;
+                    case KeyEvent.VK_8 -> selectedIndex = 7;
+                    case KeyEvent.VK_9 -> selectedIndex = 8;
+                    case KeyEvent.VK_0 -> selectedIndex = 9;
+                }
+                if(selectedIndex >= TOTAL_ITEMS) selectedIndex = TOTAL_ITEMS - 1;
             }
 
             @Override
@@ -138,9 +182,30 @@ public class Client {
                 double relY = y - WINDOW_HEIGHT/2 + client.getPlayer().y + client.getPlayer().height/2;
                 Player p = client.getPlayer();
                 if(p == null) return;
-                if(button == MouseEvent.BUTTON1 && money >= WALL_COST) {
-                    client.spritesToAdd.add(new Wall(relX - 32, relY - 32, 64, 64, "/wall.png", 0));
-                    money -= WALL_COST;
+                if(button == MouseEvent.BUTTON1) {
+                    if(selectedIndex == 0 && money >= WALL_COST) {
+                        Rectangle2D r1 = new Rectangle2D.Double(((int) relX - 32) / 64 * 64 + 32, ((int) relY - 32) / 64 * 64 + 32, 64, 64);
+                        for(int i = 0; i < client.sprites.size(); i++) {
+                            Sprite sprite = client.sprites.get(i);
+                            Rectangle2D r2 = new Rectangle2D.Double(sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
+                            if(r1.intersects(r2)) {
+                                return;
+                            }
+                        }
+                        client.spritesToAdd.add(new Wall(((int) relX - 32) / 64 * 64 + 32, ((int) relY - 32) / 64 * 64 + 32, 64, 64, "/wall.png", 0));
+                        money -= WALL_COST;
+                    } else if(selectedIndex == 1 && money >= TURRET_COST) {
+                        Rectangle2D r1 = new Rectangle2D.Double(relX - 50, (int)relY - 50, 100, 100);
+                        for(int i = 0; i < client.sprites.size(); i++) {
+                            Sprite sprite = client.sprites.get(i);
+                            Rectangle2D r2 = new Rectangle2D.Double(sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
+                            if(r1.intersects(r2)) {
+                                return;
+                            }
+                        }
+                        client.spritesToAdd.add(new Turret((int)relX - 50, (int)relY - 50, 100, 100, "/turret.png"));
+                        money -= TURRET_COST;
+                    }
                 } if (button == MouseEvent.BUTTON3) {
                     for(int i = 0; i < client.sprites.size(); i++) {
                         Sprite sprite = client.sprites.get(i);
@@ -150,6 +215,16 @@ public class Client {
                                 Wall newWall = new Wall(sprite.toString());
                                 newWall.setImage("");
                                 client.spritesToAdd.add(newWall);
+                                money += WALL_COST / 4;
+                                break;
+                            }
+                        } else if(sprite.getImage().contains("turret")) {
+                            Rectangle2D turret = new Rectangle2D.Double(sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
+                            if(turret.contains(relX, relY)) {
+                                Turret newTurret = new Turret(sprite.toString());
+                                newTurret.setImage("");
+                                client.spritesToAdd.add(newTurret);
+                                money += TURRET_COST / 4;
                                 break;
                             }
                         }
@@ -176,6 +251,7 @@ public class Client {
             String message = messages.take();
             double delta = System.currentTimeMillis() - lastTime;
             money += delta * MONEY_RATE;
+            ammo += delta * AMMO_RATE;
             lastTime = System.currentTimeMillis();
             double time = System.currentTimeMillis();
             String[] messagesa;
@@ -206,6 +282,10 @@ public class Client {
                         client.sprites.add(new Wall(messagesa[i]));
                     } else if (messagesa[i].contains("turret")) {
                         client.sprites.add(new Turret(messagesa[i]));
+                    } else if (messagesa[i].contains("stone")) {
+                        client.sprites.add(new Stone(messagesa[i]));
+                    } else if (messagesa[i].contains("bush")) {
+                        client.sprites.add(new Bush(messagesa[i]));
                     }
                 }
             }
@@ -229,6 +309,7 @@ public class Client {
             StringBuilder messageBuilder = new StringBuilder();
             Player playergot = client.getPlayer();
             if(playergot != null) {
+
                 double xdel = 0;
                 double ydel = 0;
                 if(Client.downKeys[KeyEvent.VK_W]) {
@@ -252,6 +333,18 @@ public class Client {
                     client.collide(playergot, sprite);
                     //first one is the one you want to move
                     //second one is the one you want ot move out of
+                }
+                if(playergot.getX() < 0) {
+                    playergot.setX(0);
+                }
+                if(playergot.getX() > MAP_WIDTH - playergot.getWidth()) {
+                    playergot.setX(MAP_WIDTH - playergot.getWidth());
+                }
+                if(playergot.getY() < 0) {
+                    playergot.setY(0);
+                }
+                if(playergot.getY() > MAP_HEIGHT - playergot.getHeight()) {
+                    playergot.setY(MAP_HEIGHT - playergot.getHeight());
                 }
                 messageBuilder.append(playergot.toString()).append(",");
             }
@@ -360,7 +453,26 @@ public class Client {
         String money = "Money: $" + String.format("%.2f", Client.money);
         g.drawString(money, WINDOW_WIDTH - metrics.stringWidth(money) - 10, minimapSize + FONT_SIZE + 45);
         String health = "Health: " + player.getHealth();
+        if(player.getHealth()<=0)
+        {
+            died=true;
+        }
         g.drawString(health, WINDOW_WIDTH - metrics.stringWidth(health) - 10, minimapSize + FONT_SIZE + 70);
+        String ammo = "Ammo: " + (int)Client.ammo;
+        g.drawString(ammo, WINDOW_WIDTH - metrics.stringWidth(ammo) - 10, minimapSize + FONT_SIZE + 95);
+
+        // hotbar
+        g.setColor(Color.WHITE);
+        g.fillRect(10, 10, 70 * TOTAL_ITEMS + 10, 80);
+        g.setColor(Color.BLACK);
+        g.drawRect(10, 10, 70 * TOTAL_ITEMS + 10, 80);
+        g.setColor(Color.ORANGE);
+        g.fillRect(15 + 70 * selectedIndex, 15, 70, 70);
+        for(int i = 0; i < TOTAL_ITEMS; i++){
+            String image = "/" + ITEM_NAMES[i] + ".png";
+            Image scaled = loadImage(image).getScaledInstance(60, 60, Image.SCALE_SMOOTH);
+            g.drawImage(scaled, 20 +70 * i, 20, null);
+        }
     }
 
     private static void drawImage(Graphics g, BufferedImage loadImage, double x, double y, int width, int height, double angle) {
@@ -421,7 +533,7 @@ public class Client {
                     sprite.setY((int) woodRect.getMaxY());
                 }
             } else {
-                sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
+                sprite.setY((int) woodRect.getMaxY());
             }
         } else if (woodRect.intersectsLine(bottom)) {
             if (woodRect.intersectsLine(left)) {
@@ -437,7 +549,7 @@ public class Client {
                     sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
                 }
             } else {
-                sprite.setY((int) woodRect.getMaxY());
+                sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
             }
         } else if (woodRect.intersectsLine(left)) {
             sprite.setX((int) woodRect.getMaxX());
@@ -445,7 +557,7 @@ public class Client {
             sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
         }
         if ((playerCurrX != ((Player) sprite).getX() || playerCurrY != ((Player) sprite).getY()) && wood.getImage().contains("zombie")) {
-            ((Player)sprite).setHealth(((Player)sprite).getHealth()-10);
+            ((Player)sprite).setHealth(((Player)sprite).getHealth()-1);
         }
     }
 

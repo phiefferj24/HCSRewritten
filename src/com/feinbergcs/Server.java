@@ -15,30 +15,44 @@ public class Server {
     public static final int WORLD_WIDTH = 10000;
     public static final int WORLD_HEIGHT = 10000;
 
+    public static final double ZOMBIE_RATE = 0.0001;
+
     public static void main(String[] args) throws InterruptedException {
         Listener l = new Listener(9001);
         l.start();
         l.sprites.add(new Turret(700,700,100,100,"/turret.png"));
 
 
-        for(int i = 0; i < 9500; i+=Math.random()*1200+400)
-            for(int j = 0; j < 9500; j+=Math.random()*1200+400) {
+        for(int i = (int)(Math.random() * 100); i < 9500; i+=Math.random()*1200+400)
+            for(int j = (int)(Math.random() * 100); j < 9500; j+=Math.random()*1200+400) {
                 int w = (int)(Math.random()*200+100);
-                l.sprites.add(new Tree(i, j, w, w, "/tree.png"));
+                double rando=Math.random();
+                if(rando>0 && rando<0.3333) {
+                    l.sprites.add(new Tree(i, j, w, w, "/tree.png"));
+                }
+                else if(rando>0.333333 && rando<0.666666)
+                {
+                    l.sprites.add(new Stone(i, j, w, w, "/stone.png"));
+                }
+                else if(rando>0.666666 && rando<0.999999)
+                {
+                    l.sprites.add(new Bush(i, j, w, w, "/bush.png"));
+                }
 
             }
 
-        for(int i = 0; i < 9500; i+=Math.random()*2900+100)
-            for(int j = 0; j < 9500; j+=Math.random()*2900+400) {
+        for(int i = 1000; i < 9500; i+=Math.random()*2900+100)
+            for(int j = 1000; j < 9500; j+=Math.random()*2900+400) {
                 numZombs++;
-                l.sprites.add(new Zombie((int)(i+Math.random()*1200), (int)(j+Math.random()*1200), 100, 100,"/zombie.png"));
+                l.sprites.add(new Zombie((int)(i+Math.random()*120), (int)(j+Math.random()*120), (int)(100+Math.random()*300), (int)(j+Math.random()*300),"/zombie.png"));
             }
 
         double lastTime = System.currentTimeMillis();
         int reccount = 0;
         ArrayList<String> sentPlayers = new ArrayList<>();
+        //double zombtime = 0;
         while(true) {
-            while(numZombs!=80) {
+            while(numZombs<=80) {
                 numZombs++;
                 l.sprites.add(new Zombie((int) (Math.random() * 8000), (int) (Math.random() * 8000), 100, 100, "/zombie.png"));
             }
@@ -72,6 +86,12 @@ public class Server {
                             l.sprites.add(new Zombie(split[i]));
                         } else if (split[i].contains("wall")) {
                             l.sprites.add(new Wall(split[i]));
+                        } else if (split[i].contains("stone")) {
+                            l.sprites.add(new Stone(split[i]));
+                        } else if (split[i].contains("bush")) {
+                            l.sprites.add(new Bush(split[i]));
+                        } else if (split[i].contains("turret")) {
+                            l.sprites.add(new Turret(split[i]));
                         }
                     }
                 }
@@ -80,7 +100,6 @@ public class Server {
                 for(int i = 0; i < l.sprites.size(); i++) {
                     Sprite s = l.sprites.get(i);
                     if(!s.image.contains("player")) {
-                        s.step(delta);
                         if(s.image.contains("bullet")) {
                             Bullet b = (Bullet)s;
                             if(s.x < 0 || s.x > WORLD_WIDTH || s.y < 0 || s.y > WORLD_HEIGHT) {
@@ -89,7 +108,7 @@ public class Server {
                             } else {
                                 for(int j = 0; j < l.sprites.size(); j++) {
                                     Sprite sprite = l.sprites.get(j);
-                                    if(sprite.getImage().contains("wall") || sprite.getImage().contains("tree")) {
+                                    if(sprite.getImage().contains("wall") || sprite.getImage().contains("tree") || sprite.getImage().contains("stone") || sprite.getImage().contains("bush")) {
                                         Line2D bulletPath = new Line2D.Double(b.x, b.y, b.x + b.vx * b.speed * delta, b.y + b.vy * b.speed * delta);
                                         Rectangle2D wall = new Rectangle2D.Double(sprite.x, sprite.y, sprite.width, sprite.height);
                                         if(bulletPath.intersects(wall)) {
@@ -109,11 +128,15 @@ public class Server {
                             ((Zombie)s).step(delta,l.sprites);
                             for(int j = 0; j < l.sprites.size(); j++) {
                                 Sprite s2 = l.sprites.get(j);
-                                if(s2.image.contains("wall")) {
+                                if(s2.image.contains("wall") || s2.image.contains("tree")) {
                                     collide(s,s2);
                                 } else if(s2.image.contains("bullet")) {
-                                    if(doesCollide(s,s2)) {
+                                    Bullet b = (Bullet)s2;
+                                    Line2D bulletPath = new Line2D.Double(b.x, b.y, b.x + b.vx * b.speed * delta, b.y + b.vy * b.speed * delta);
+                                    Rectangle2D zombie = new Rectangle2D.Double(s.x, s.y, s.width, s.height);
+                                    if(bulletPath.intersects(zombie)) {
                                         l.sprites.remove(s);
+                                        numZombs--;
                                         l.sprites.remove(s2);
                                         i -= 2;
                                         j -= 2;
