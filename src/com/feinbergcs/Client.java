@@ -46,21 +46,13 @@ public class Client {
                 double playerY=0;
                 Player p = client.getPlayer();
                 if(p != null) {
-                    playerX = p.x;
-                    playerY = p.y;
+                    playerX = p.x + p.width/2;
+                    playerY = p.y + p.height/2;
                 }
                 for (int i = 0; i < client.sprites.size() && p != null; i++) {
                     Sprite sprite = client.sprites.get(i);
                     //System.out.println("outside the for: " + sprites.get(i).getImage());
-                    if(sprite.getImage().equals("/player.png"))
-                    {
-                        //System.out.println("inside the for" + sprites.get(i).getImage());
-                        //TODO: after do the scaling
-                       drawImage(g, loadImage(sprite.getImage()), (WINDOW_WIDTH/2)-(p.getWidth()/2), (WINDOW_HEIGHT/2)-(p.getHeight()/2), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
-                        //drawImage(g, loadImage(sprite.getImage()), sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
-                    } else {
-                        drawImage(g, loadImage(sprite.getImage()), sprite.getX()+((WINDOW_WIDTH/2)-playerX), sprite.getY()+((WINDOW_HEIGHT/2)-playerY), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
-                    }
+                    drawImage(g, loadImage(sprite.getImage()), sprite.getX()+((WINDOW_WIDTH/2)-playerX), sprite.getY()+((WINDOW_HEIGHT/2)-playerY), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
                 }
                 client.drawMinimap(g, 10000, 10000);
             }

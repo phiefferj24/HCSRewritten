@@ -77,6 +77,7 @@ public class Server {
             while (true) {
                 try {
                     Socket socket = serverSocket.accept();
+                    System.out.println("New connection");
                     ServerThread serverThread = new ServerThread(socket, this);
                     serverThread.start();
                     serverThreads.add(serverThread);
