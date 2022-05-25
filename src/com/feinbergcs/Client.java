@@ -314,6 +314,21 @@ public class Client {
                 } if(Client.downKeys[KeyEvent.VK_D]) {
                     xdel += playergot.speed;
                 }
+                for(int i = 0; i < client.sprites.size(); i++) {
+                    Sprite sprite = client.sprites.get(i);
+                    if(sprite.getId().equals(playergot.getId()) || sprite.getImage().contains("bullet") || sprite.getImage().contains("zombie")) continue;
+                    Rectangle2D bounds = new Rectangle2D.Double(sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
+                    if(bounds.contains(playergot.getX() + xdel * delta, playergot.getY())) {
+                        xdel = 0;
+                    }
+                    if(bounds.contains(playergot.getX(), playergot.getY() + ydel * delta)) {
+                        ydel = 0;
+                    }
+                    if(bounds.contains(playergot.getX() + xdel * delta, playergot.getY() + ydel * delta)) {
+                        xdel = 0;
+                        ydel = 0;
+                    }
+                }
                 playergot.setVX(xdel);
                 playergot.setVY(ydel);
                 playergot.setX((int)(playergot.getX() + playergot.getVX() * delta));
