@@ -12,7 +12,6 @@ public class Server {
         Listener l = new Listener(9001);
         l.start();
         while(true) {
-            System.out.println("kjdlfkasjfdlaksjd");
             String message = messages.take();
             System.out.println("Rec:" + message);
                 String[] split = message.split(",");
@@ -120,7 +119,6 @@ public class Server {
                     if (input == null) {
                         break;
                     }
-                    System.out.println("aaaReceived: " + input);
                     listener.onMessage(input);
                 }
             } catch (IOException e) {

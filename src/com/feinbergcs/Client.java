@@ -130,16 +130,12 @@ public class Client {
                 double xdel = 0;
                 double ydel = 0;
                 if(Client.downKeys[KeyEvent.VK_W]) {
-                    System.out.println("W");
                     ydel -= playergot.speed;
                 } if(Client.downKeys[KeyEvent.VK_S]) {
-                    System.out.println("S");
                     ydel += playergot.speed;
                 } if(Client.downKeys[KeyEvent.VK_A]) {
-                    System.out.println("A");
                     xdel -= playergot.speed;
                 } if(Client.downKeys[KeyEvent.VK_D]) {
-                    System.out.println("D");
                     xdel += playergot.speed;
                 }
                 playergot.setVX(xdel);
@@ -202,8 +198,8 @@ public class Client {
                             }
                         }
                     }
+                    messageBuilder.append(sprite.toString()).append(",");
                 }
-                messageBuilder.append(sprite.toString()).append(",");
             }
 
             messageBuilder.append(time);
