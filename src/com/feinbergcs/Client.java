@@ -375,7 +375,8 @@ public class Client {
             client.spritesToAdd.clear();
             messageBuilder.append(time);
             clientThread.send(messageBuilder.toString());
-            d.repaint();
+            while(d.queue.size() > 1);
+            d.queue.add(0);
         }
     }
 

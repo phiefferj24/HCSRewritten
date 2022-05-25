@@ -10,6 +10,7 @@ import javax.swing.*;
 
 public class Display extends JComponent implements KeyListener, MouseListener, Runnable
 {
+    public LinkedBlockingQueue<Integer> queue= new LinkedBlockingQueue<Integer>();
     public interface Callback
     {
         void paintComponent(Graphics g);
@@ -93,6 +94,14 @@ public class Display extends JComponent implements KeyListener, MouseListener, R
 
     public void run()
     {
+        while(true) {
+            try {
+                int i = queue.take();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            repaint();
+        }
     }
 
     public void keyPressed(KeyEvent e)
