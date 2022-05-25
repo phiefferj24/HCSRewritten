@@ -14,10 +14,16 @@ public class Server {
     public static void main(String[] args) throws InterruptedException {
         Listener l = new Listener(9001);
         l.start();
-        for(int i = 0; i < 10000; i+=Math.random()*1200+400)
-            for(int j = 0; j < 10000; j+=Math.random()*1200+400)
-                l.sprites.add(new Tree(i,j,100,100, "/tree.png"));
+        for(int i = 0; i < 9500; i+=Math.random()*1200+400)
+            for(int j = 0; j < 9500; j+=Math.random()*1200+400) {
+                l.sprites.add(new Tree(i, j, 100, 100, "/tree.png"));
 
+            }
+
+        for(int i = 0; i < 9500; i+=Math.random()*2900+100)
+            for(int j = 0; j < 9500; j+=Math.random()*2900+400) {
+                l.sprites.add(new Zombie((int)(i+Math.random()*1200), (int)(j+Math.random()*1200), 100, 100,"/zombie.png"));
+            }
 
         double lastTime = System.currentTimeMillis();
         int reccount = 0;
@@ -58,13 +64,17 @@ public class Server {
                 for(int i = 0; i < l.sprites.size(); i++) {
                     Sprite s = l.sprites.get(i);
                     if(!s.image.contains("player")) {
-                        s.step(delta);
                         if(s.image.contains("bullet")) {
                             if(s.x < 0 || s.x > WORLD_WIDTH || s.y < 0 || s.y > WORLD_HEIGHT) {
                                 l.sprites.remove(s);
                                 i--;
                             }
                         }
+                        if(s.image.contains("zombie")) {
+                            ((Zombie)s).step(delta,l.sprites);
+                        }
+                        else
+                            s.step(delta);
                     }
                 }//TODO delta time?
 
