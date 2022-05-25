@@ -157,8 +157,11 @@ public class Client {
                     }
                     else if(Math.sqrt((clickX-380)*(clickX-380)+(clickY-160)*(clickY-160))<100)
                     {
-                        if(money>50)
-                            money-=50;
+                        if(money>50) {
+                            money -= 50;
+                            ((Player)client.sprites.get(0)).setWidth((int)(((Player)client.sprites.get(0)).getWidth()*(0.75)));
+                            ((Player)client.sprites.get(0)).setHeight((int)(((Player)client.sprites.get(0)).getHeight()*(0.75)));
+                        }
                     }
                     else if(Math.sqrt((clickX-600)*(clickX-600)+(clickY-160)*(clickY-160))<100)
                     {
@@ -398,7 +401,7 @@ public class Client {
         g.setColor(Color.GRAY);
         g.fillRect(280,60,200, 200);
         g.setColor(Color.BLACK);
-        g.drawString("WASTE $$$:  50$" ,285,  75);
+        g.drawString("DECREASE SIZE BY 25%:  500$" ,285,  75);
         drawImage(g,loadImage("/wakeUp.png"),280,90.0,200,200,-Math.PI/2);
 
         g.setColor(Color.GRAY);
