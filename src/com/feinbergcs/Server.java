@@ -154,7 +154,23 @@ public class Server {
                         else
                             s.step(delta);
                     }
-                }//TODO delta time?
+                    else {
+//                        for(int j = 0; j < l.sprites.size(); j++) {//TODO
+//                            Sprite s2 = l.sprites.get(j);
+//                            if(s2.image.contains("bullet")) {
+//                                Bullet b = (Bullet)s2;
+//                                Line2D bulletPath = new Line2D.Double(b.x, b.y, b.x + b.vx * b.speed * delta, b.y + b.vy * b.speed * delta);
+//                                Rectangle2D player = new Rectangle2D.Double(s.x, s.y, s.width, s.height);
+//                                if(bulletPath.intersects(player)) {
+//                                    //TODO make it change health
+//                                    //l.sprites.remove(s2);
+//                                    j -= 2;
+//                                    continue;
+//                                }
+//                            }
+//                        }
+                    }
+                }
 
                 StringBuilder messageBuilder = new StringBuilder();
                 for(int i = 0; i < l.sprites.size(); i++) {

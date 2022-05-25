@@ -559,6 +559,10 @@ public class Client {
         if ((playerCurrX != ((Player) sprite).getX() || playerCurrY != ((Player) sprite).getY()) && wood.getImage().contains("zombie")) {
             ((Player)sprite).setHealth(((Player)sprite).getHealth()-1);
         }
+        if ((playerCurrX != ((Player) sprite).getX() || playerCurrY != ((Player) sprite).getY()) && wood.getImage().contains("bullet")) {
+            ((Player)sprite).setHealth(((Player)sprite).getHealth()-5);
+        }
+
     }
 
     public Socket connect(String host, int port) {
