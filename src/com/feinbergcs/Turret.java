@@ -6,6 +6,7 @@ import java.util.UUID;
 public class Turret extends Sprite{
 
     private boolean seesZombie = false;
+    private boolean readyToShoot = false;
     double t;
     int lookatX;
     int lookatY;
@@ -26,7 +27,7 @@ public class Turret extends Sprite{
 
 
     public void step(double dt, ArrayList<Sprite> sprites) {
-        ArrayList<Sprite> players = new ArrayList<>();
+        ArrayList<Sprite> zombs = new ArrayList<>();
 
         double speed = 5;
         double zombieCX = 0;
@@ -40,14 +41,14 @@ public class Turret extends Sprite{
             return;
         for(int i = 0; i < sprites.size(); i++)
             if((sprites.get(i) instanceof Zombie)) {
-                players.add(sprites.get(i));
+                zombs.add(sprites.get(i));
             }
-        for(Sprite s: players)
+        for(Sprite s: zombs)
         {
 
             seesZombie = false;
 
-            if(s instanceof Player)
+            if(s instanceof Zombie)
             {
                 zombieCX = s.getX()+s.getWidth()/2;
                 zombieCY = s.getY()+s.getHeight()/2;
@@ -61,22 +62,25 @@ public class Turret extends Sprite{
 
         if(!seesZombie)
         {
-            angle+=.001*dt;
+            angle+=.01*dt;
 
         }
         else
         {
             lookatX=(int)zombieCX;
             lookatY =(int)zombieCY;
-            t=0;
+            readyToShoot = true;
         }
 
 
         double x =  (lookatX) - (cx);
         double y = (lookatY) - (cy);
 
-        double theta = Math.atan2(y,x);
-        setAngle(theta);
+        double theta;
+        if(seesZombie) {
+            theta = Math.atan2(y, x);
+            setAngle(theta);
+        }
     }
 
     @Override
@@ -102,6 +106,13 @@ public class Turret extends Sprite{
         angle = Double.parseDouble(split[6]);
         lookatX = Integer.parseInt(split[7]);
         lookatY = Integer.parseInt(split[8]);
+    }
+
+    public boolean canShoot()
+    {
+        if(readyToShoot)
+            t=0;
+        return readyToShoot;
     }
 
 }

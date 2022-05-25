@@ -14,7 +14,7 @@ public class Server {
     public static void main(String[] args) throws InterruptedException {
         Listener l = new Listener(9001);
         l.start();
-        l.sprites.add(new Turret(700,700,200,200,"/turret.png"));
+        l.sprites.add(new Turret(700,700,100,100,"/turret.png"));
 
 
         for(int i = 0; i < 9500; i+=Math.random()*1200+400)
@@ -85,6 +85,8 @@ public class Server {
                             ((Zombie)s).step(delta,l.sprites);
                         }
                         else if(s.image.contains("turret")) {
+                            if(((Turret)s).canShoot())
+                                l.sprites.add(new Bullet((int)s.getX()+s.getWidth()/2,(int)s.getY()+s.getHeight()/2,1,1,s.getAngle(),.5,10));
                             ((Turret)s).step(delta,l.sprites);
                         }
                         else
