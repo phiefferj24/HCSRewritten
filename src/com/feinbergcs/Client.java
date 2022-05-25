@@ -249,6 +249,14 @@ public class Client {
         FontMetrics metrics = g.getFontMetrics();
         String pos = "(" + (int)player.x + ", " + (int)player.y + ")";
         g.drawString(pos, WINDOW_WIDTH - metrics.stringWidth(pos) - 10, minimapSize + FONT_SIZE + 20);
+        String health = Double.toString(player.getHealth());
+        for(int i = 0; i < sprites.size(); i++) {
+            if(sprites.get(i).getId().equals(Client.playerID))
+            {
+                health= Double.toString(player.getHealth());
+            }
+        }
+        g.drawString(health, WINDOW_WIDTH - metrics.stringWidth(pos) - 10, minimapSize + FONT_SIZE + 45);
     }
 
     private static void drawImage(Graphics g, BufferedImage loadImage, double x, double y, int width, int height, double angle) {
