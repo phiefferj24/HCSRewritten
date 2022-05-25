@@ -1,6 +1,7 @@
 package com.feinbergcs;
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
@@ -25,7 +26,15 @@ public class Client {
     public ArrayList<Sprite> sprites = new ArrayList<Sprite>();
     public boolean onRight = false;
     public static LinkedBlockingQueue<String> messages = new LinkedBlockingQueue<>();
+
+    private static ArrayList<File> soundtrack = new ArrayList<File>();
+
     public static void main(String[] args) {
+
+        soundtrack.add(new File(Client.class.getResource("/tft.wav").getPath()));
+        //soundtrack.add(new File(Client.class.getResource("/tetris.wav").getPath()));
+        play(soundtrack.get((int)(Math.random()*soundtrack.size())), true);
+        //System.out.println("THIS IS THE SOUNDTRAD: " + soundtrack.get((int)(Math.random()*soundtrack.size())));
         Client client = new Client();
         Socket socket = client.connect("localhost", 9001);
         ClientThread clientThread = new ClientThread(socket);
@@ -68,6 +77,7 @@ public class Client {
 
             @Override
             public void mouseClicked(int x, int y) {
+                //play(new File(Client.class.getResource("/hit.wav").getPath()),false);
                 clickX = x;
                 clickY = y;
                 client.onRight = !client.onRight;
@@ -89,6 +99,8 @@ public class Client {
         fm.append(System.currentTimeMillis());
         clientThread.send(fm.toString());
         while(true) {
+
+            //while(messages.isEmpty());
             while(!messages.isEmpty()) {
                 String[] messagesa;
                 String message = "";
@@ -195,6 +207,38 @@ public class Client {
 //            }
         }
     }
+
+    public static void play(File file, Boolean repeat)
+    {
+        try
+        {
+            final Clip clip = (Clip) AudioSystem.getLine(new Line.Info(Clip.class));
+
+            clip.addLineListener(new LineListener()
+            {
+                @Override
+                public void update(LineEvent event)
+                {
+                    if (event.getType() == LineEvent.Type.STOP)
+                    {
+                        clip.close();
+                        if(repeat)
+                            play(soundtrack.get((int)(Math.random()*soundtrack.size())), true);
+                    }
+                }
+            });
+
+            clip.open(AudioSystem.getAudioInputStream(file));
+            clip.start();
+
+        }
+        catch (Exception exc)
+        {
+            exc.printStackTrace(System.out);
+        }
+    }
+
+
     public void drawMinimap(Graphics g, int mapWidth, int mapHeight){
         int minimapSize = WINDOW_WIDTH / 5;
         g.setColor(Color.WHITE);
