@@ -38,6 +38,7 @@ public class Client {
         //play(soundtrack.get((int)(Math.random()*soundtrack.size())), true);
         //System.out.println("THIS IS THE SOUNDTRAD: " + soundtrack.get((int)(Math.random()*soundtrack.size())));
         Client client = new Client();
+        //76.181.240.154
         Socket socket = client.connect("localhost", 9001);
         ClientThread clientThread = new ClientThread(socket);
         clientThread.start();
@@ -82,6 +83,7 @@ public class Client {
         t.start();
         client.sprites.add(new Player(0, 0, 100, 100, "/player.png"));
         client.sprites.add(new Tree(500, 500, 100, 100, "/tree.png"));
+        client.sprites.add(new Zombie(250, 300, 100, 100, "/zombie.png"));
         playerID = client.sprites.get(0).getId();
 
         double lastTime = System.currentTimeMillis();
@@ -152,6 +154,8 @@ public class Client {
                     Sprite sprite = client.sprites.get(i);
                     if(sprite.getId().equals(playergot.getId())) continue;
                     client.collide(playergot, sprite);
+                    //first one is the one you want to move
+                    //second one is the one you want ot move out of
                 }
                 messageBuilder.append(playergot.toString()).append(",");
             }
@@ -274,12 +278,24 @@ public class Client {
         if (woodRect.intersectsLine(top)) {
             if (woodRect.intersectsLine(left)) {
                 if (Math.abs(woodRect.getMaxX() - sprite.getX()) < Math.abs(woodRect.getMaxY() - sprite.getY())) {
+                    if(sprite.getImage().equals("/player.png") && wood.getImage().equals("/wood.png"))
+                    {
+                        System.out.println("PLAYER HEALTH: " + ((Player)sprite).getHealth());
+                        ((Player)sprite).setHealth(((Player)sprite).getHealth()-1);
+                        System.out.println("AFTERUPDATE HEALTH: " + ((Player)sprite).getHealth());
+                    }
                     sprite.setX((int) woodRect.getMaxX());
                 } else {
                     sprite.setY((int) woodRect.getMaxY());
                 }
             } else if (woodRect.intersectsLine(right)) {
                 if (Math.abs(woodRect.getMinX() - sprite.getX() - sprite.getWidth()) < Math.abs(woodRect.getMaxY() - sprite.getY())) {
+                    if(sprite.getImage().equals("/player.png") && wood.getImage().equals("/wood.png"))
+                    {
+                        System.out.println("PLAYER HEALTH: " + ((Player)sprite).getHealth());
+                        ((Player)sprite).setHealth(((Player)sprite).getHealth()-1);
+                        System.out.println("AFTERUPDATE HEALTH: " + ((Player)sprite).getHealth());
+                    }
                     sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
                 } else {
                     sprite.setY((int) woodRect.getMaxY());
@@ -290,12 +306,24 @@ public class Client {
         } else if (woodRect.intersectsLine(bottom)) {
             if (woodRect.intersectsLine(left)) {
                 if (Math.abs(woodRect.getMaxX() - sprite.getX()) < Math.abs(woodRect.getMinY() - sprite.getY() - sprite.getHeight())) {
+                    if(sprite.getImage().equals("/player.png") && wood.getImage().equals("wood.png"))
+                    {
+                        System.out.println("PLAYER HEALTH: " + ((Player)sprite).getHealth());
+                        ((Player)sprite).setHealth(((Player)sprite).getHealth()-1);
+                        System.out.println("AFTERUPDATE HEALTH: " + ((Player)sprite).getHealth());
+                    }
                     sprite.setX((int) woodRect.getMaxX());
                 } else {
                     sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
                 }
             } else if (woodRect.intersectsLine(right)) {
                 if (Math.abs(woodRect.getMinX() - sprite.getX() - sprite.getWidth()) < Math.abs(woodRect.getMinY() - sprite.getY() - sprite.getHeight())) {
+                    if(sprite.getImage().equals("/player.png") && wood.getImage().equals("wood.png"))
+                    {
+                        System.out.println("PLAYER HEALTH: " + ((Player)sprite).getHealth());
+                        ((Player)sprite).setHealth(((Player)sprite).getHealth()-1);
+                        System.out.println("AFTERUPDATE HEALTH: " + ((Player)sprite).getHealth());
+                    }
                     sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
                 } else {
                     sprite.setY((int) woodRect.getMinY() - sprite.getHeight());

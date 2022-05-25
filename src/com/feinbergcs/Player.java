@@ -10,7 +10,8 @@ public class Player extends Sprite {
     public double speed = 1;
     public double vx;
     public double vy;
-    public Player(int x, int y, int width, int height, String image, double vx, double vy) {
+    public double health;
+    public Player(int x, int y, int width, int height, String image, double vx, double vy, double health) {
         id = UUID.randomUUID().toString();
         this.x = x;
         this.y = y;
@@ -19,9 +20,10 @@ public class Player extends Sprite {
         this.image = image;
         this.vx=vx;
         this.vy=vy;
+        this.health=health;
     }
     public Player(int x, int y, int width, int height, String image) {
-        this(x, y, width, height, image, 0, 0);
+        this(x, y, width, height, image, 0, 0, 100);
     }
     public Player(String info) {
         updateToString(info);
@@ -46,9 +48,20 @@ public class Player extends Sprite {
     {
         return vy;
     }
+
+    public double getHealth()
+    {
+        return health;
+    }
+
+    public void setHealth(double health)
+    {
+        this.health=health;
+    }
+
     @Override
     public String toString() {
-        return "[" + id + ";" + x + ";" + y + ";" + width + ";" + height + ";" + image + ";" + angle + ";" + vx + ";" + vy + "]";
+        return "[" + id + ";" + x + ";" + y + ";" + width + ";" + height + ";" + image + ";" + angle + ";" + vx + ";" + vy + ";" + health + "]";
     }
 
     @Override
