@@ -39,7 +39,7 @@ public class Client {
     public static final int WINDOW_HEIGHT = 720;
     public static final double MONEY_RATE = 0.01;
     public static double money = 0;
-    public static final double AMMO_RATE = 0.005;
+    public static final double AMMO_RATE = 0.002;
     public static double ammo = 50;
     public static int clickX = 0;
     public static int clickY = 0;
@@ -111,7 +111,7 @@ public class Client {
                     double cx = client.sprites.get(i).getX()+client.sprites.get(0).getWidth()/2;
                     double cy = client.sprites.get(i).getY()+client.sprites.get(0).getHeight()/2;
                     if(Math.sqrt((playerCX-cx)*(playerCX-cx)+(playerCY-cy)*(playerCY-cy))<770)
-                        drawImage(g, loadImage(sprite.getImage()), sprite.getX()+((WINDOW_WIDTH/2)-playerX), sprite.getY()+((WINDOW_HEIGHT/2)-playerY), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
+                        drawImage(g, loadImage(sprite.getImage()), sprite.getX()+((WINDOW_WIDTH/2.0)-playerX), sprite.getY()+((WINDOW_HEIGHT/2.0)-playerY), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
                 }
                 if(shop)
                     drawShop(g);
