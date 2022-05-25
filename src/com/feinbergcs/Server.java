@@ -11,6 +11,7 @@ public class Server {
     public static void main(String[] args) throws InterruptedException {
         Listener l = new Listener(9001);
         l.start();
+        double lastTime = System.currentTimeMillis();
         while(true) {
             String message = messages.take();
             System.out.println("Rec:" + message);
@@ -37,10 +38,12 @@ public class Server {
                         }
                     }
                 }
-                double time = Double.parseDouble(split[split.length - 1]);
-                double delta = time - System.currentTimeMillis();
-                time = System.currentTimeMillis();
-                l.sprites.forEach((s) -> s.step(delta));//TODO delta time?
+                double delta = System.currentTimeMillis() - lastTime;
+                lastTime = System.currentTimeMillis();
+                double time = System.currentTimeMillis();
+                l.sprites.forEach((s) -> {
+                    if(!(s instanceof Player)) s.step(delta);
+                });//TODO delta time?
 
                 StringBuilder messageBuilder = new StringBuilder();
                 for(int i = 0; i < l.sprites.size(); i++) {

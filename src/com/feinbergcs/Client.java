@@ -83,7 +83,7 @@ public class Client {
         client.sprites.add(new Tree(500, 500, 100, 100, "/tree.png"));
         playerID = client.sprites.get(0).getId();
 
-        double time = System.currentTimeMillis();
+        double lastTime = System.currentTimeMillis();
         StringBuilder fm = new StringBuilder();
         for(int i = 0; i < client.sprites.size(); i++) {
             Sprite sprite = client.sprites.get(i);
@@ -92,7 +92,9 @@ public class Client {
         fm.append(System.currentTimeMillis());
         clientThread.send(fm.toString());
         while(true) {
-
+            double delta = System.currentTimeMillis() - lastTime;
+            lastTime = System.currentTimeMillis();
+            double time = System.currentTimeMillis();
             //while(messages.isEmpty());
             String message = messages.take();
             String[] messagesa;
@@ -120,7 +122,6 @@ public class Client {
                 }
             }
             time = messagesa[messagesa.length - 1].equals("") ? time : Double.parseDouble(messagesa[messagesa.length - 1]);
-            double delta = System.currentTimeMillis() - time;
             time = System.currentTimeMillis();
             mouseX = (int) d.getMouseX();
             mouseY = (int) d.getMouseY();
@@ -148,8 +149,8 @@ public class Client {
                 if (!(sprite instanceof Player) || sprite.getId().equals(playerID)) {
                     if (sprite.getId().equals(playerID)) {
                         sprite.setAngle(Math.atan2(mouseY - (double) WINDOW_HEIGHT / 2, mouseX - (double) WINDOW_WIDTH / 2));
+                        sprite.step(delta);
                     }
-                    sprite.step(delta);
                     for (int j = 0; j < client.sprites.size(); j++) {
                         if (i == j) continue;
                         Sprite wood = client.sprites.get(j);
