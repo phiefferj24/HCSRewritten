@@ -224,6 +224,10 @@ public class Client {
                         client.sprites.add(new Wall(messagesa[i]));
                     } else if (messagesa[i].contains("turret")) {
                         client.sprites.add(new Turret(messagesa[i]));
+                    } else if (messagesa[i].contains("stone")) {
+                        client.sprites.add(new Stone(messagesa[i]));
+                    } else if (messagesa[i].contains("bush")) {
+                        client.sprites.add(new Bush(messagesa[i]));
                     }
                 }
             }

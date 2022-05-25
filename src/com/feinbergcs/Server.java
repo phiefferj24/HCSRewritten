@@ -26,7 +26,18 @@ public class Server {
         for(int i = (int)(Math.random() * 100); i < 9500; i+=Math.random()*1200+400)
             for(int j = (int)(Math.random() * 100); j < 9500; j+=Math.random()*1200+400) {
                 int w = (int)(Math.random()*200+100);
-                l.sprites.add(new Tree(i, j, w, w, "/tree.png"));
+                double rando=Math.random();
+                if(rando>0 && rando<0.3333) {
+                    l.sprites.add(new Tree(i, j, w, w, "/tree.png"));
+                }
+                else if(rando>0.333333 && rando<0.666666)
+                {
+                    l.sprites.add(new Stone(i, j, w, w, "/stone.png"));
+                }
+                else if(rando>0.666666 && rando<0.999999)
+                {
+                    l.sprites.add(new Bush(i, j, w, w, "/bush.png"));
+                }
 
             }
 
@@ -75,6 +86,10 @@ public class Server {
                             l.sprites.add(new Zombie(split[i]));
                         } else if (split[i].contains("wall")) {
                             l.sprites.add(new Wall(split[i]));
+                        } else if (split[i].contains("stone")) {
+                            l.sprites.add(new Stone(split[i]));
+                        } else if (split[i].contains("bush")) {
+                            l.sprites.add(new Bush(split[i]));
                         } else if (split[i].contains("turret")) {
                             l.sprites.add(new Turret(split[i]));
                         }
@@ -93,7 +108,7 @@ public class Server {
                             } else {
                                 for(int j = 0; j < l.sprites.size(); j++) {
                                     Sprite sprite = l.sprites.get(j);
-                                    if(sprite.getImage().contains("wall") || sprite.getImage().contains("tree")) {
+                                    if(sprite.getImage().contains("wall") || sprite.getImage().contains("tree") || sprite.getImage().contains("stone") || sprite.getImage().contains("bush")) {
                                         Line2D bulletPath = new Line2D.Double(b.x, b.y, b.x + b.vx * b.speed * delta, b.y + b.vy * b.speed * delta);
                                         Rectangle2D wall = new Rectangle2D.Double(sprite.x, sprite.y, sprite.width, sprite.height);
                                         if(bulletPath.intersects(wall)) {
