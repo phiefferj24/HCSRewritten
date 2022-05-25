@@ -39,10 +39,10 @@ public class Turret extends Sprite{
         if(sprites == null)
             return;
         for(int i = 0; i < sprites.size(); i++)
-            if((sprites.get(i) instanceof Player)) {
+            if((sprites.get(i) instanceof Zombie)) {
                 players.add(sprites.get(i));
             }
-        for(Sprite s: sprites)
+        for(Sprite s: players)
         {
 
             seesZombie = false;
@@ -76,7 +76,7 @@ public class Turret extends Sprite{
         double y = (lookatY) - (cy);
 
         double theta = Math.atan2(y,x);
-        setAngle(theta-90);
+        setAngle(theta);
     }
 
     @Override

@@ -133,6 +133,8 @@ public class Client {
                         client.sprites.add(new Tree(messagesa[i]));
                     } else if (messagesa[i].contains("zombie")) {
                         client.sprites.add(new Zombie(messagesa[i]));
+                    } else if (messagesa[i].contains("turret")) {
+                        client.sprites.add(new Turret(messagesa[i]));
                     }
                 }
             }
