@@ -64,6 +64,8 @@ public class Server {
                             l.sprites.add(new Zombie(split[i]));
                         } else if (split[i].contains("wall")) {
                             l.sprites.add(new Wall(split[i]));
+                        } else if (split[i].contains("turret")) {
+                            l.sprites.add(new Turret(split[i]));
                         }
                     }
                 }

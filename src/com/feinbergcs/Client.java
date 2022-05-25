@@ -20,10 +20,17 @@ public class Client {
 
     // COSTS
 
-    public static final double WALL_COST = 100;
+    public static final double WALL_COST = 50;
+    public static final double TURRET_COST = 100;
+
+    public static int selectedIndex = 0;
+    public static final int TOTAL_ITEMS = 2;
+    public static final String[] ITEM_NAMES = {"wall", "turret"};
 
     // OTHER STUFF
 
+    public static final int MAP_WIDTH = 10000;
+    public static final int MAP_HEIGHT = 10000;
     public static boolean[] downKeys = new boolean[256];
     public static final int WINDOW_WIDTH = 1280;
     public static final int WINDOW_HEIGHT = 720;
@@ -75,7 +82,7 @@ public class Client {
                     if(Math.sqrt((playerCX-cx)*(playerCX-cx)+(playerCY-cy)*(playerCY-cy))<2000)
                         drawImage(g, loadImage(sprite.getImage()), sprite.getX()+((WINDOW_WIDTH/2)-playerX), sprite.getY()+((WINDOW_HEIGHT/2)-playerY), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
                 }
-                client.drawMinimap(g, 10000, 10000);
+            client.drawMinimap(g, MAP_WIDTH, MAP_HEIGHT);
             }
 
             @Override
@@ -85,6 +92,19 @@ public class Client {
                     client.onRight = !client.onRight;
                     client.spritesToAdd.add(new Bullet(client.getPlayer(), 1, 1, 1, client.onRight, 8));
                 }
+                switch(key) {
+                    case KeyEvent.VK_1 -> selectedIndex = 0;
+                    case KeyEvent.VK_2 -> selectedIndex = 1;
+                    case KeyEvent.VK_3 -> selectedIndex = 2;
+                    case KeyEvent.VK_4 -> selectedIndex = 3;
+                    case KeyEvent.VK_5 -> selectedIndex = 4;
+                    case KeyEvent.VK_6 -> selectedIndex = 5;
+                    case KeyEvent.VK_7 -> selectedIndex = 6;
+                    case KeyEvent.VK_8 -> selectedIndex = 7;
+                    case KeyEvent.VK_9 -> selectedIndex = 8;
+                    case KeyEvent.VK_0 -> selectedIndex = 9;
+                }
+                if(selectedIndex >= TOTAL_ITEMS) selectedIndex = TOTAL_ITEMS - 1;
             }
 
             @Override
@@ -101,9 +121,14 @@ public class Client {
                 double relY = y - WINDOW_HEIGHT/2 + client.getPlayer().y + client.getPlayer().height/2;
                 Player p = client.getPlayer();
                 if(p == null) return;
-                if(button == MouseEvent.BUTTON1 && money >= WALL_COST) {
-                    client.spritesToAdd.add(new Wall(relX - 32, relY - 32, 64, 64, "/wall.png", 0));
-                    money -= WALL_COST;
+                if(button == MouseEvent.BUTTON1) {
+                    if(selectedIndex == 0 && money >= WALL_COST) {
+                        client.spritesToAdd.add(new Wall(((int) relX - 32) / 64 * 64 + 32, ((int) relY - 32) / 64 * 64 + 32, 64, 64, "/wall.png", 0));
+                        money -= WALL_COST;
+                    } else if(selectedIndex == 1 && money >= TURRET_COST) {
+                        client.spritesToAdd.add(new Turret((int)relX - 50, (int)relY - 50, 100, 100, "/turret.png"));
+                        money -= TURRET_COST;
+                    }
                 } if (button == MouseEvent.BUTTON3) {
                     for(int i = 0; i < client.sprites.size(); i++) {
                         Sprite sprite = client.sprites.get(i);
@@ -181,7 +206,6 @@ public class Client {
                     }
                 }
                 if(sprite.getImage().equals("")) {
-                    System.out.println("removing");
                     client.sprites.remove(sprite);
                     i--;
                 }
@@ -215,6 +239,18 @@ public class Client {
                     client.collide(playergot, sprite);
                     //first one is the one you want to move
                     //second one is the one you want ot move out of
+                }
+                if(playergot.getX() < 0) {
+                    playergot.setX(0);
+                }
+                if(playergot.getX() > MAP_WIDTH - playergot.getWidth()) {
+                    playergot.setX(MAP_WIDTH - playergot.getWidth());
+                }
+                if(playergot.getY() < 0) {
+                    playergot.setY(0);
+                }
+                if(playergot.getY() > MAP_HEIGHT - playergot.getHeight()) {
+                    playergot.setY(MAP_HEIGHT - playergot.getHeight());
                 }
                 messageBuilder.append(playergot.toString()).append(",");
             }
@@ -294,6 +330,19 @@ public class Client {
         g.drawString(money, WINDOW_WIDTH - metrics.stringWidth(money) - 10, minimapSize + FONT_SIZE + 45);
         String health = "Health: " + player.getHealth();
         g.drawString(health, WINDOW_WIDTH - metrics.stringWidth(health) - 10, minimapSize + FONT_SIZE + 70);
+
+        // hotbar
+        g.setColor(Color.WHITE);
+        g.fillRect(10, 10, 70 * TOTAL_ITEMS + 10, 80);
+        g.setColor(Color.BLACK);
+        g.drawRect(10, 10, 70 * TOTAL_ITEMS + 10, 80);
+        g.setColor(Color.ORANGE);
+        g.fillRect(15 + 70 * selectedIndex, 15, 70, 70);
+        for(int i = 0; i < TOTAL_ITEMS; i++){
+            String image = "/" + ITEM_NAMES[i] + ".png";
+            Image scaled = loadImage(image).getScaledInstance(60, 60, Image.SCALE_SMOOTH);
+            g.drawImage(scaled, 20 +70 * i, 20, null);
+        }
     }
 
     private static void drawImage(Graphics g, BufferedImage loadImage, double x, double y, int width, int height, double angle) {
@@ -354,7 +403,7 @@ public class Client {
                     sprite.setY((int) woodRect.getMaxY());
                 }
             } else {
-                sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
+                sprite.setY((int) woodRect.getMaxY());
             }
         } else if (woodRect.intersectsLine(bottom)) {
             if (woodRect.intersectsLine(left)) {
@@ -370,7 +419,7 @@ public class Client {
                     sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
                 }
             } else {
-                sprite.setY((int) woodRect.getMaxY());
+                sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
             }
         } else if (woodRect.intersectsLine(left)) {
             sprite.setX((int) woodRect.getMaxX());
