@@ -3,20 +3,18 @@ package com.feinbergcs;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class Zombie extends Sprite{
+public class Turret extends Sprite{
 
-    private boolean seesPlayer = false;
+    private boolean seesZombie = false;
     double t;
-    int gotoX;
-    int gotoY;
+    int lookatX;
+    int lookatY;
 
-    public Zombie(String info) {
+    public Turret(String info) {
         updateToString(info);
     }
-    public Zombie(int x, int y, int width, int height, String image) {
+    public Turret(int x, int y, int width, int height, String image) {
         id = UUID.randomUUID().toString();
-        gotoX=(int)(x+(Math.random()*100)-50);
-        gotoY=(int)(y+(Math.random()*100)-50);
         this.x = x;
         this.y = y;
         this.width = width;
@@ -29,8 +27,8 @@ public class Zombie extends Sprite{
 
     public void step(double dt, ArrayList<Sprite> sprites) {
         double speed = 5;
-        double playerCX = 0;
-        double playerCY = 0;
+        double zombieCX = 0;
+        double zombieCY = 0;
 
         double cx = this.x +width/2;
         double cy = this.y +height/2;
@@ -39,55 +37,45 @@ public class Zombie extends Sprite{
         if(sprites == null)
             return;
         for(int i = 0; i < sprites.size(); i++)
-            if(!(sprites.get(i) instanceof Player)) {
+            if(!(sprites.get(i) instanceof Zombie)) {
                 sprites.remove(i);
                 i--;
             }
         for(Sprite s: sprites)
         {
 
-            seesPlayer = false;
+            seesZombie = false;
 
             if(s instanceof Player)
             {
-                playerCX = s.getX()+s.getWidth()/2;
-                playerCY = s.getY()+s.getHeight()/2;
-                if(Math.sqrt((playerCX-cx)*(playerCX-cx)+(playerCY-cy)*(playerCY-cy))<300) {
+                zombieCX = s.getX()+s.getWidth()/2;
+                zombieCY = s.getY()+s.getHeight()/2;
+                if(Math.sqrt((zombieCX-cx)*(zombieCX-cx)+(zombieCY-cy)*(zombieCY-cy))<300) {
 
-                    seesPlayer = true;
+                    seesZombie = true;
                     break;
                 }
             }
         }
 
-        if(!seesPlayer)
+        if(!seesZombie)
         {
-            if(t<2500000)
-                t += dt;
-            else
-            {
-                gotoX=(int)(int)(cx+(Math.random()*100)-50);
-                gotoY=(int)(int)(cy+(Math.random()*100)-50);
-                t=0;
-            }
+            angle+=.001*dt;
 
         }
         else
         {
-            gotoX=(int)playerCX;
-            gotoY=(int)playerCY;
+            lookatX=(int)zombieCX;
+            lookatY =(int)zombieCY;
             t=0;
         }
 
 
-        double x =  (gotoX) - (cx);
-        double y = (gotoY) - (cy);
+        double x =  (lookatX) - (cx);
+        double y = (lookatY) - (cy);
 
         double theta = Math.atan2(y,x);
         setAngle(theta-90);
-        if(Math.sqrt((cx-gotoX)*(cx-gotoX)+(cy-gotoY)*(cy-gotoY))>20)
-            setX((int)(getX()+speed*Math.cos(theta)));
-        setY((int)(getY()+speed*Math.sin(theta)));
     }
 
     @Override
@@ -97,7 +85,7 @@ public class Zombie extends Sprite{
 
     @Override
     public String toString() {
-        return "[" + id + ";" + x + ";" + y + ";" + width + ";" + height + ";" + image + ";" + angle + ";" + gotoX +";" + gotoY +"]";
+        return "[" + id + ";" + x + ";" + y + ";" + width + ";" + height + ";" + image + ";" + angle + ";" + lookatX +";" + lookatY +"]";
     }
 
     @Override
@@ -111,8 +99,8 @@ public class Zombie extends Sprite{
         height = Integer.parseInt(split[4]);
         image = split[5];
         angle = Double.parseDouble(split[6]);
-        gotoX = Integer.parseInt(split[7]);
-        gotoY = Integer.parseInt(split[8]);
+        lookatX = Integer.parseInt(split[7]);
+        lookatY = Integer.parseInt(split[8]);
     }
 
 }

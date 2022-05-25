@@ -6,6 +6,7 @@ public class Bullet extends Sprite {
     public double vx;
     public double vy;
     public double speed;
+    public int t;
 
     public Bullet(int x, int y, double vx, double vy, double angle, double speed, int size) {
         super.width = size;
@@ -43,6 +44,7 @@ public class Bullet extends Sprite {
 
     @Override
     public void step(double deltatime) {
+        t+= deltatime;
         x += vx * deltatime * speed;
         y += vy * deltatime * speed;
     }

@@ -45,6 +45,8 @@ public class Client {
         Display d = new Display(WINDOW_WIDTH, WINDOW_HEIGHT, "Client", new Display.Callback() {
             @Override
             public void paintComponent(Graphics g) {
+                g.setColor(new Color(11, 173, 14));
+                g.fillRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
                 double playerX=0;
                 double playerY=0;
                 Player p = client.getPlayer();
@@ -55,7 +57,12 @@ public class Client {
                 for (int i = 0; i < client.sprites.size() && p != null; i++) {
                     Sprite sprite = client.sprites.get(i);
                     //System.out.println("outside the for: " + sprites.get(i).getImage());
-                    drawImage(g, loadImage(sprite.getImage()), sprite.getX()+((WINDOW_WIDTH/2)-playerX), sprite.getY()+((WINDOW_HEIGHT/2)-playerY), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
+                    double playerCX = client.sprites.get(0).getX()+client.sprites.get(0).getWidth()/2;
+                    double playerCY = client.sprites.get(0).getY()+client.sprites.get(0).getHeight()/2;
+                    double cx = client.sprites.get(i).getX()+client.sprites.get(0).getWidth()/2;
+                    double cy = client.sprites.get(i).getY()+client.sprites.get(0).getHeight()/2;
+                    if(Math.sqrt((playerCX-cx)*(playerCX-cx)+(playerCY-cy)*(playerCY-cy))<2000)
+                        drawImage(g, loadImage(sprite.getImage()), sprite.getX()+((WINDOW_WIDTH/2)-playerX), sprite.getY()+((WINDOW_HEIGHT/2)-playerY), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
                 }
                 client.drawMinimap(g, 10000, 10000);
             }
@@ -63,6 +70,10 @@ public class Client {
             @Override
             public void keyPressed(int key) {
                 downKeys[key] = true;
+                if(key == KeyEvent.VK_SPACE) {
+                    client.onRight = !client.onRight;
+                    client.spritesToAdd.add(new Bullet(client.getPlayer(), 1, 1, 1, client.onRight, 8));
+                }
             }
 
             @Override
@@ -75,15 +86,13 @@ public class Client {
                 //play(new File(Client.class.getResource("/hit.wav").getPath()),false);
                 clickX = x;
                 clickY = y;
-                client.onRight = !client.onRight;
-                client.spritesToAdd.add(new Bullet(client.getPlayer(), 1, 1, 1, client.onRight, 8));
+
             }
         });
         Thread t = new Thread(d);
         t.start();
         client.sprites.add(new Player(0, 0, 100, 100, "/player.png"));
-        client.sprites.add(new Tree(500, 500, 100, 100, "/tree.png"));
-        client.sprites.add(new Zombie(250, 300, 100, 100, "/zombie.png"));
+        //client.sprites.add(new Tree(500, 500, 100, 100, "/tree.png"));
         playerID = client.sprites.get(0).getId();
 
         double lastTime = System.currentTimeMillis();
@@ -127,6 +136,15 @@ public class Client {
                     }
                 }
             }
+            for(int i = 0; i < client.sprites.size(); i++) {
+                Sprite sprite = client.sprites.get(i);
+                if(!sprite.getId().equals(Client.playerID)) {
+                    if(!message.contains(sprite.getId())) {
+                        client.sprites.remove(sprite);
+                        i--;
+                    }
+                }
+            }
             time = System.currentTimeMillis();
             mouseX = (int) d.getMouseX();
             mouseY = (int) d.getMouseY();
@@ -152,7 +170,7 @@ public class Client {
                 playergot.step(delta);
                 for(int i = 0; i < client.sprites.size(); i++) {
                     Sprite sprite = client.sprites.get(i);
-                    if(sprite.getId().equals(playergot.getId())) continue;
+                    if(sprite.getId().equals(playergot.getId()) || sprite.getImage().contains("bullet")) continue;
                     client.collide(playergot, sprite);
                     //first one is the one you want to move
                     //second one is the one you want ot move out of
