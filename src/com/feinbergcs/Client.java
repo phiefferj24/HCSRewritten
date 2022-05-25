@@ -55,8 +55,8 @@ public class Client {
     public static void main(String[] args) throws InterruptedException {
 
         soundtrack.add(new File(Client.class.getResource("/tft.wav").getPath()));
-        //soundtrack.add(new File(Client.class.getResource("/tetris.wav").getPath()));
-        //play(soundtrack.get((int)(Math.random()*soundtrack.size())), true);
+        soundtrack.add(new File(Client.class.getResource("/tetris.wav").getPath()));
+        play(soundtrack.get((int)(Math.random()*soundtrack.size())), true);
         //System.out.println("THIS IS THE SOUNDTRAD: " + soundtrack.get((int)(Math.random()*soundtrack.size())));
 
         Client client = new Client();
