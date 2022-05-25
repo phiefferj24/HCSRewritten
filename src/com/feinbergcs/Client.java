@@ -25,6 +25,7 @@ public class Client {
     public static int mouseY = 0;
     public static String playerID;
     public ArrayList<Sprite> sprites = new ArrayList<Sprite>();
+    public ArrayList<Sprite> spritesToAdd = new ArrayList<Sprite>();
     public boolean onRight = false;
     public static LinkedBlockingQueue<String> messages = new LinkedBlockingQueue<>();
 
@@ -74,7 +75,7 @@ public class Client {
                 clickX = x;
                 clickY = y;
                 client.onRight = !client.onRight;
-                client.sprites.add(new Bullet(client.getPlayer(), 1, 1, 1, client.onRight, 8));
+                client.spritesToAdd.add(new Bullet(client.getPlayer(), 1, 1, 1, client.onRight, 8));
             }
         });
         Thread t = new Thread(d);
@@ -149,14 +150,18 @@ public class Client {
                 playergot.step(delta);
                 messageBuilder.append(playergot.toString()).append(",");
             }
+            for(int i = 0; i < client.spritesToAdd.size(); i++) {
+                messageBuilder.append(client.spritesToAdd.get(i).toString()).append(",");
+            }
+            client.spritesToAdd.clear();
             messageBuilder.append(time);
             clientThread.send(messageBuilder.toString());
             d.repaint();
-            try {
-                Thread.sleep(20);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                Thread.sleep(20);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
         }
     }
 

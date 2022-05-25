@@ -8,39 +8,43 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class Server {
     public static LinkedBlockingQueue<String> messages = new LinkedBlockingQueue<>();
+    public static int ppl = 0;
     public static void main(String[] args) throws InterruptedException {
         Listener l = new Listener(9001);
         l.start();
         double lastTime = System.currentTimeMillis();
+        int reccount = 0;
         while(true) {
             String message = messages.take();
+            reccount++;
             double delta = System.currentTimeMillis() - lastTime;
             lastTime = System.currentTimeMillis();
             double time = System.currentTimeMillis();
             System.out.println("Rec:" + message);
-                String[] split = message.split(",");
-                for(int j = 0; j < l.sprites.size(); j++) {
-                    Sprite sprite = l.sprites.get(j);
-                    for (int i = 0; i < split.length - 1; i++) {
-                        if(split[i].contains(sprite.getId())) {
-                            sprite.updateToString(split[i]);
-                            split[i] = "";
-                        }
+            String[] split = message.split(",");
+            for(int j = 0; j < l.sprites.size(); j++) {
+                Sprite sprite = l.sprites.get(j);
+                for (int i = 0; i < split.length - 1; i++) {
+                    if(split[i].contains(sprite.getId())) {
+                        sprite.updateToString(split[i]);
+                        split[i] = "";
                     }
                 }
-                for(int i = 0; i < split.length - 1; i++) {
-                    if(!split[i].equals("")) {
-                        if(split[i].contains("player")) {
-                            l.sprites.add(new Player(split[i]));
-                        } else if(split[i].contains("bullet")) {
-                            l.sprites.add(new Bullet(split[i]));
-                        } else if(split[i].contains("tree")) {
-                            l.sprites.add(new Tree(split[i]));
-                        } else if(split[i].contains("zombie")) {
-                            l.sprites.add(new Zombie(split[i]));
-                        }
+            }
+            for(int i = 0; i < split.length - 1; i++) {
+                if(!split[i].equals("")) {
+                    if(split[i].contains("player")) {
+                        l.sprites.add(new Player(split[i]));
+                    } else if(split[i].contains("bullet")) {
+                        l.sprites.add(new Bullet(split[i]));
+                    } else if(split[i].contains("tree")) {
+                        l.sprites.add(new Tree(split[i]));
+                    } else if(split[i].contains("zombie")) {
+                        l.sprites.add(new Zombie(split[i]));
                     }
                 }
+            }
+            if(reccount >= ppl) {
                 l.sprites.forEach((s) -> {
                     if(!s.image.contains("player")) s.step(delta);
                 });//TODO delta time?
@@ -52,7 +56,9 @@ public class Server {
                 messageBuilder.append(time);
                 message = messageBuilder.toString();
                 l.send(message);
+                reccount = 0;
             }
+        }
     }
 
     public static class Listener extends Thread {
@@ -76,6 +82,7 @@ public class Server {
                 try {
                     Socket socket = serverSocket.accept();
                     System.out.println("New connection");
+                    ppl++;
                     ServerThread serverThread = new ServerThread(socket, this);
                     serverThread.start();
                     serverThreads.add(serverThread);
