@@ -64,7 +64,7 @@ public class Client {
 
         Client client = new Client();
         //76.181.240.154
-        Socket socket = client.connect("localhost", 9000);
+        Socket socket = client.connect("10.13.20.51", 9000);
         ClientThread clientThread = new ClientThread(socket);
         clientThread.start();
 
