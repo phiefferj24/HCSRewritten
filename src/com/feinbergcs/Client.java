@@ -44,6 +44,8 @@ public class Client {
         Display d = new Display(WINDOW_WIDTH, WINDOW_HEIGHT, "Client", new Display.Callback() {
             @Override
             public void paintComponent(Graphics g) {
+                g.setColor(new Color(11, 173, 14));
+                g.fillRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
                 double playerX=0;
                 double playerY=0;
                 Player p = client.getPlayer();
@@ -54,7 +56,12 @@ public class Client {
                 for (int i = 0; i < client.sprites.size() && p != null; i++) {
                     Sprite sprite = client.sprites.get(i);
                     //System.out.println("outside the for: " + sprites.get(i).getImage());
-                    drawImage(g, loadImage(sprite.getImage()), sprite.getX()+((WINDOW_WIDTH/2)-playerX), sprite.getY()+((WINDOW_HEIGHT/2)-playerY), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
+                    double playerCX = client.sprites.get(0).getX()+client.sprites.get(0).getWidth()/2;
+                    double playerCY = client.sprites.get(0).getY()+client.sprites.get(0).getHeight()/2;
+                    double cx = client.sprites.get(i).getX()+client.sprites.get(0).getWidth()/2;
+                    double cy = client.sprites.get(i).getY()+client.sprites.get(0).getHeight()/2;
+                    if(Math.sqrt((playerCX-cx)*(playerCX-cx)+(playerCY-cy)*(playerCY-cy))<2000)
+                        drawImage(g, loadImage(sprite.getImage()), sprite.getX()+((WINDOW_WIDTH/2)-playerX), sprite.getY()+((WINDOW_HEIGHT/2)-playerY), sprite.getWidth(), sprite.getHeight(), sprite.getAngle());
                 }
                 client.drawMinimap(g, 10000, 10000);
             }
@@ -84,7 +91,7 @@ public class Client {
         Thread t = new Thread(d);
         t.start();
         client.sprites.add(new Player(0, 0, 100, 100, "/player.png"));
-        client.sprites.add(new Tree(500, 500, 100, 100, "/tree.png"));
+        //client.sprites.add(new Tree(500, 500, 100, 100, "/tree.png"));
         playerID = client.sprites.get(0).getId();
 
         double lastTime = System.currentTimeMillis();
