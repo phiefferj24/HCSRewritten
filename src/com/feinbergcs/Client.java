@@ -35,7 +35,7 @@ public class Client {
     public static final int WINDOW_WIDTH = 1280;
     public static final int WINDOW_HEIGHT = 720;
     public static final double MONEY_RATE = 0.01;
-    public static double money = 10000;
+    public static double money = 0;
     public static final double AMMO_RATE = 0.005;
     public static double ammo = 50;
     public static int clickX = 0;
@@ -61,7 +61,7 @@ public class Client {
 
         Client client = new Client();
         //76.181.240.154
-        Socket socket = client.connect("localhost", 9001);
+        Socket socket = client.connect("localhost", 9000);
         ClientThread clientThread = new ClientThread(socket);
         clientThread.start();
 
@@ -234,7 +234,7 @@ public class Client {
         });
         Thread t = new Thread(d);
         t.start();
-        client.sprites.add(new Player(0, 0, 100, 100, "/player.png"));
+        client.sprites.add(new Player(25, 25, 100, 100, "/player.png"));
         //client.sprites.add(new Tree(500, 500, 100, 100, "/tree.png"));
         playerID = client.sprites.get(0).getId();
 
@@ -447,6 +447,7 @@ public class Client {
             Sprite sprite = sprites.get(i);
             double scaledX = sprite.getX() * minimapSize / mapWidth;
             double scaledY = sprite.getY() * minimapSize / mapHeight;
+            if(scaledX < DOT_SIZE / 2 || scaledY < DOT_SIZE/2 || scaledX > minimapSize - DOT_SIZE/2 || scaledY > minimapSize - DOT_SIZE/2) continue;
             if(sprite.image.contains("player")){
                 if(sprite.id.toString().equals(player.id.toString())) {
                     g.setColor(Color.BLUE);

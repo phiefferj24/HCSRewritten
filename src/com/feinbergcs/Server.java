@@ -18,13 +18,13 @@ public class Server {
     public static final double ZOMBIE_RATE = 0.0001;
 
     public static void main(String[] args) throws InterruptedException {
-        Listener l = new Listener(9001);
+        Listener l = new Listener(9000);
         l.start();
         l.sprites.add(new Turret(700,700,100,100,"/turret.png"));
 
 
-        for(int i = (int)(Math.random() * 100); i < 9500; i+=Math.random()*1200+400)
-            for(int j = (int)(Math.random() * 100); j < 9500; j+=Math.random()*1200+400) {
+        for(int i = 300 + (int)(Math.random() * 100); i < 9500; i+=Math.random()*1200+400)
+            for(int j = 300 + (int)(Math.random() * 100); j < 9500; j+=Math.random()*1200+400) {
                 int w = (int)(Math.random()*200+100);
                 double rando=Math.random();
                 if(rando>0 && rando<0.3333) {
