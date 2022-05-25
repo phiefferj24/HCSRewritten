@@ -3,6 +3,7 @@ package com.feinbergcs;
 import javax.imageio.ImageIO;
 import javax.sound.sampled.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -15,7 +16,7 @@ import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Client {
-    public static ArrayList<Integer> downKeys = new ArrayList<>();
+    public static boolean[] downKeys = new boolean[256];
     public static final int WINDOW_WIDTH = 1280;
     public static final int WINDOW_HEIGHT = 720;
     public static int clickX = 0;
@@ -25,11 +26,11 @@ public class Client {
     public static String playerID;
     public ArrayList<Sprite> sprites = new ArrayList<Sprite>();
     public boolean onRight = false;
-    public static ArrayList<String> messages = new ArrayList<>();
+    public static LinkedBlockingQueue<String> messages = new LinkedBlockingQueue<>();
 
     private static ArrayList<File> soundtrack = new ArrayList<File>();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         soundtrack.add(new File(Client.class.getResource("/tft.wav").getPath()));
         //soundtrack.add(new File(Client.class.getResource("/tetris.wav").getPath()));
@@ -59,12 +60,12 @@ public class Client {
 
             @Override
             public void keyPressed(int key) {
-                if(!downKeys.contains((Integer) key)) downKeys.add(key);
+                downKeys[key] = true;
             }
 
             @Override
             public void keyReleased(int key) {
-                downKeys.remove((Integer) key);
+                downKeys[key] = false;
             }
 
             @Override
@@ -93,51 +94,70 @@ public class Client {
         while(true) {
 
             //while(messages.isEmpty());
-            while(!messages.isEmpty()) {
-                String[] messagesa;
-                String message = "";
-                message = messages.remove(0);
-                messagesa = message.split(",");
-                for(int j = 0; j < client.sprites.size(); j++) {
-                    Sprite sprite = client.sprites.get(j);
-                    for (int i = 0; i < messagesa.length - 1; i++) {
-                        if(messagesa[i].contains(sprite.getId())) {
-                            sprite.updateToString(messagesa[i]);
-                            messagesa[i] = "";
-                        }
+            String message = messages.take();
+            String[] messagesa;
+            messagesa = message.split(",");
+            for (int j = 0; j < client.sprites.size(); j++) {
+                Sprite sprite = client.sprites.get(j);
+                for (int i = 0; i < messagesa.length - 1; i++) {
+                    if (messagesa[i].contains(sprite.getId())) {
+                        sprite.updateToString(messagesa[i]);
+                        messagesa[i] = "";
                     }
                 }
-                for(int i = 0; i < messagesa.length - 1; i++) {
-                    if(!messagesa[i].equals("")) {
-                        if(messagesa[i].contains("player")) {
-                            client.sprites.add(new Player(messagesa[i]));
-                        } else if(messagesa[i].contains("bullet")) {
-                            client.sprites.add(new Bullet(messagesa[i]));
-                        } else if(messagesa[i].contains("tree")) {
-                            client.sprites.add(new Tree(messagesa[i]));
-                        } else if(messagesa[i].contains("zombie")) {
-                            client.sprites.add(new Zombie(messagesa[i]));
-                        }
-                    }
-                }
-                time = messagesa[messagesa.length - 1].equals("") ? time : Double.parseDouble(messagesa[messagesa.length - 1]);
             }
+            for (int i = 0; i < messagesa.length - 1; i++) {
+                if (!messagesa[i].equals("")) {
+                    if (messagesa[i].contains("player")) {
+                        client.sprites.add(new Player(messagesa[i]));
+                    } else if (messagesa[i].contains("bullet")) {
+                        client.sprites.add(new Bullet(messagesa[i]));
+                    } else if (messagesa[i].contains("tree")) {
+                        client.sprites.add(new Tree(messagesa[i]));
+                    } else if (messagesa[i].contains("zombie")) {
+                        client.sprites.add(new Zombie(messagesa[i]));
+                    }
+                }
+            }
+            time = messagesa[messagesa.length - 1].equals("") ? time : Double.parseDouble(messagesa[messagesa.length - 1]);
             double delta = System.currentTimeMillis() - time;
             time = System.currentTimeMillis();
             mouseX = (int) d.getMouseX();
             mouseY = (int) d.getMouseY();
-            StringBuilder message = new StringBuilder();
+            StringBuilder messageB = new StringBuilder();
+            Player playergot = client.getPlayer();
+            if(playergot != null) {
+                double xdel = 0;
+                double ydel = 0;
+                if(Client.downKeys[KeyEvent.VK_W]) {
+                    System.out.println("W");
+                    ydel -= playergot.speed;
+                } if(Client.downKeys[KeyEvent.VK_S]) {
+                    System.out.println("S");
+                    ydel += playergot.speed;
+                } if(Client.downKeys[KeyEvent.VK_A]) {
+                    System.out.println("A");
+                    xdel -= playergot.speed;
+                } if(Client.downKeys[KeyEvent.VK_D]) {
+                    System.out.println("D");
+                    xdel += playergot.speed;
+                }
+                playergot.setVX(xdel);
+                playergot.setVY(ydel);
+                playergot.setX((int)(playergot.getX() + playergot.getVX() * delta));
+                playergot.setY((int)(playergot.getY() + playergot.getVY() * delta));
+            }
             for (int i = 0; i < client.sprites.size(); i++) {
                 Sprite sprite = client.sprites.get(i);
-                if(!(sprite instanceof Player) || sprite.getId().equals(playerID)) {
-                    if(sprite.getId().equals(playerID)) {
-                        sprite.setAngle(Math.atan2(mouseY - (double)WINDOW_HEIGHT/2, mouseX - (double)WINDOW_WIDTH/2));
+                if (!(sprite instanceof Player) || sprite.getId().equals(playerID)) {
+                    if (sprite.getId().equals(playerID)) {
+                        sprite.setAngle(Math.atan2(mouseY - (double) WINDOW_HEIGHT / 2, mouseX - (double) WINDOW_WIDTH / 2));
                     }
                     sprite.step(delta);
-                    for(int j = 0; j < client.sprites.size(); j++) {
-                        if(i == j) continue;
+                    for (int j = 0; j < client.sprites.size(); j++) {
+                        if (i == j) continue;
                         Sprite wood = client.sprites.get(j);
-                        if(wood.getImage()== "/tree.png" || wood.getImage()=="/Amogus.png") {
+                        if (wood.getImage() == "/tree.png" || wood.getImage() == "/Amogus.png") {
                             Rectangle2D.Double woodRect = new Rectangle2D.Double(wood.getX(), wood.getY(), wood.getWidth(), wood.getHeight());
                             Line2D top = new Line2D.Double(sprite.getX(), sprite.getY(), sprite.getX() + sprite.getWidth(), sprite.getY());
                             Line2D bottom = new Line2D.Double(sprite.getX(), sprite.getY() + sprite.getHeight(), sprite.getX() + sprite.getWidth(), sprite.getY() + sprite.getHeight());
@@ -183,17 +203,20 @@ public class Client {
                         }
                     }
                 }
-                message.append(sprite.toString()).append(",");
+                if(sprite.image.contains("player")) {
+                    messageB.append(((Player)sprite).toString()).append(",");
+                }
+                else messageB.append(sprite.toString()).append(",");
             }
 
-            message.append(time);
+            messageB.append(time);
+            clientThread.send(message.toString());
+            d.repaint();
             try {
-                Thread.sleep(10);
+                Thread.sleep(25);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            clientThread.send(message.toString());
-            d.repaint();
         }
     }
 
