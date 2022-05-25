@@ -18,13 +18,13 @@ public class Server {
     public static final double ZOMBIE_RATE = 0.0001;
 
     public static void main(String[] args) throws InterruptedException {
-        Listener l = new Listener(9001);
+        Listener l = new Listener(9000);
         l.start();
         l.sprites.add(new Turret(700,700,100,100,"/turret.png"));
 
 
-        for(int i = (int)(Math.random() * 100); i < 9500; i+=Math.random()*1200+400)
-            for(int j = (int)(Math.random() * 100); j < 9500; j+=Math.random()*1200+400) {
+        for(int i = 300 + (int)(Math.random() * 100); i < 9500; i+=Math.random()*1200+400)
+            for(int j = 300 + (int)(Math.random() * 100); j < 9500; j+=Math.random()*1200+400) {
                 int w = (int)(Math.random()*200+100);
                 double rando=Math.random();
                 if(rando>0 && rando<0.3333) {
@@ -129,7 +129,7 @@ public class Server {
                             ((Zombie)s).step(delta,l.sprites);
                             for(int j = 0; j < l.sprites.size(); j++) {
                                 Sprite s2 = l.sprites.get(j);
-                                if(s2.image.contains("wall") || s2.image.contains("tree")) {
+                                if(s2.image.contains("wall") || s2.image.contains("tree") || s2.image.contains("stone") || s2.image.contains("bush")) {
                                     collide(s,s2);
                                 } else if(s2.image.contains("bullet")) {
                                     Bullet b = (Bullet)s2;
@@ -154,7 +154,23 @@ public class Server {
                         else
                             s.step(delta);
                     }
-                }//TODO delta time?
+                    else {
+//                        for(int j = 0; j < l.sprites.size(); j++) {//TODO
+//                            Sprite s2 = l.sprites.get(j);
+//                            if(s2.image.contains("bullet")) {
+//                                Bullet b = (Bullet)s2;
+//                                Line2D bulletPath = new Line2D.Double(b.x, b.y, b.x + b.vx * b.speed * delta, b.y + b.vy * b.speed * delta);
+//                                Rectangle2D player = new Rectangle2D.Double(s.x, s.y, s.width, s.height);
+//                                if(bulletPath.intersects(player)) {
+//                                    //TODO make it change health
+//                                    //l.sprites.remove(s2);
+//                                    j -= 2;
+//                                    continue;
+//                                }
+//                            }
+//                        }
+                    }
+                }
 
                 StringBuilder messageBuilder = new StringBuilder();
                 for(int i = 0; i < l.sprites.size(); i++) {
