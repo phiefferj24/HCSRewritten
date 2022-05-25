@@ -60,6 +60,8 @@ public class Server {
                             l.sprites.add(new Tree(split[i]));
                         } else if (split[i].contains("zombie")) {
                             l.sprites.add(new Zombie(split[i]));
+                        } else if (split[i].contains("wall")) {
+                            l.sprites.add(new Wall(split[i]));
                         }
                     }
                 }
@@ -74,6 +76,10 @@ public class Server {
                                 l.sprites.remove(s);
                                 i--;
                             }
+                        }
+                        if(s.image.isEmpty()) {
+                            l.sprites.remove(s);
+                            i--;
                         }
                         if(s.image.contains("zombie")) {
                             ((Zombie)s).step(delta,l.sprites);
