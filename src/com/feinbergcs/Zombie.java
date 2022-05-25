@@ -46,12 +46,16 @@ public class Zombie extends Sprite{
         for(Sprite s: players)
         {
 
-            seesPlayer = false;
+
 
             if(s instanceof Player)
             {
                 playerCX = s.getX()+s.getWidth()/2;
                 playerCY = s.getY()+s.getHeight()/2;
+                if(Math.sqrt((playerCX-cx)*(playerCX-cx)+(playerCY-cy)*(playerCY-cy))>1000) {
+
+                    seesPlayer = false;
+                }
                 if(Math.sqrt((playerCX-cx)*(playerCX-cx)+(playerCY-cy)*(playerCY-cy))<300) {
 
                     seesPlayer = true;
