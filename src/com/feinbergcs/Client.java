@@ -92,16 +92,19 @@ public class Client {
         fm.append(System.currentTimeMillis());
         clientThread.send(fm.toString());
         while(true) {
+            //while(messages.isEmpty());
+            String message = messages.take();
             double delta = System.currentTimeMillis() - lastTime;
             lastTime = System.currentTimeMillis();
             double time = System.currentTimeMillis();
-            //while(messages.isEmpty());
-            String message = messages.take();
             String[] messagesa;
             messagesa = message.split(",");
             for (int j = 0; j < client.sprites.size(); j++) {
                 Sprite sprite = client.sprites.get(j);
                 for (int i = 0; i < messagesa.length - 1; i++) {
+                    if(messagesa[i].contains(Client.playerID)) {
+                        messagesa[i] = "";
+                    }
                     if (messagesa[i].contains(sprite.getId())) {
                         sprite.updateToString(messagesa[i]);
                         messagesa[i] = "";
@@ -121,7 +124,6 @@ public class Client {
                     }
                 }
             }
-            time = messagesa[messagesa.length - 1].equals("") ? time : Double.parseDouble(messagesa[messagesa.length - 1]);
             time = System.currentTimeMillis();
             mouseX = (int) d.getMouseX();
             mouseY = (int) d.getMouseY();
@@ -143,68 +145,10 @@ public class Client {
                 playergot.setVY(ydel);
                 playergot.setX((int)(playergot.getX() + playergot.getVX() * delta));
                 playergot.setY((int)(playergot.getY() + playergot.getVY() * delta));
+                playergot.setAngle(Math.atan2(mouseY - (double) WINDOW_HEIGHT / 2, mouseX - (double) WINDOW_WIDTH / 2));
+                playergot.step(delta);
+                messageBuilder.append(playergot.toString()).append(",");
             }
-            for (int i = 0; i < client.sprites.size(); i++) {
-                Sprite sprite = client.sprites.get(i);
-                if (!(sprite instanceof Player) || sprite.getId().equals(playerID)) {
-                    if (sprite.getId().equals(playerID)) {
-                        sprite.setAngle(Math.atan2(mouseY - (double) WINDOW_HEIGHT / 2, mouseX - (double) WINDOW_WIDTH / 2));
-                        sprite.step(delta);
-                    }
-                    for (int j = 0; j < client.sprites.size(); j++) {
-                        if (i == j) continue;
-                        Sprite wood = client.sprites.get(j);
-                        if (wood.getImage() == "/tree.png" || wood.getImage() == "/Amogus.png") {
-                            Rectangle2D.Double woodRect = new Rectangle2D.Double(wood.getX(), wood.getY(), wood.getWidth(), wood.getHeight());
-                            Line2D top = new Line2D.Double(sprite.getX(), sprite.getY(), sprite.getX() + sprite.getWidth(), sprite.getY());
-                            Line2D bottom = new Line2D.Double(sprite.getX(), sprite.getY() + sprite.getHeight(), sprite.getX() + sprite.getWidth(), sprite.getY() + sprite.getHeight());
-                            Line2D left = new Line2D.Double(sprite.getX(), sprite.getY(), sprite.getX(), sprite.getY() + sprite.getHeight());
-                            Line2D right = new Line2D.Double(sprite.getX() + sprite.getWidth(), sprite.getY(), sprite.getX() + sprite.getWidth(), sprite.getY() + sprite.getHeight());
-                            if (woodRect.intersectsLine(top)) {
-                                if (woodRect.intersectsLine(left)) {
-                                    if (Math.abs(woodRect.getMaxX() - sprite.getX()) < Math.abs(woodRect.getMaxY() - sprite.getY())) {
-                                        sprite.setX((int) woodRect.getMaxX());
-                                    } else {
-                                        sprite.setY((int) woodRect.getMaxY());
-                                    }
-                                } else if (woodRect.intersectsLine(right)) {
-                                    if (Math.abs(woodRect.getMinX() - sprite.getX() - sprite.getWidth()) < Math.abs(woodRect.getMaxY() - sprite.getY())) {
-                                        sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
-                                    } else {
-                                        sprite.setY((int) woodRect.getMaxY());
-                                    }
-                                } else {
-                                    sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
-                                }
-                            } else if (woodRect.intersectsLine(bottom)) {
-                                if (woodRect.intersectsLine(left)) {
-                                    if (Math.abs(woodRect.getMaxX() - sprite.getX()) < Math.abs(woodRect.getMinY() - sprite.getY() - sprite.getHeight())) {
-                                        sprite.setX((int) woodRect.getMaxX());
-                                    } else {
-                                        sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
-                                    }
-                                } else if (woodRect.intersectsLine(right)) {
-                                    if (Math.abs(woodRect.getMinX() - sprite.getX() - sprite.getWidth()) < Math.abs(woodRect.getMinY() - sprite.getY() - sprite.getHeight())) {
-                                        sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
-                                    } else {
-                                        sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
-                                    }
-                                } else {
-                                    sprite.setY((int) woodRect.getMaxY());
-                                }
-                            } else if (woodRect.intersectsLine(left)) {
-                                sprite.setX((int) woodRect.getMaxX());
-                            } else if (woodRect.intersectsLine(right)) {
-                                sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
-                            }
-                        }
-                    }
-                    if(sprite.getId().equals(Client.playerID)) {
-                        messageBuilder.append(sprite.toString()).append(",");
-                    }
-                }
-            }
-
             messageBuilder.append(time);
             clientThread.send(messageBuilder.toString());
             d.repaint();
@@ -377,3 +321,48 @@ public class Client {
         return Math.min(d1, Math.min(d2, Math.min(d3, d4)));
     }
 }
+/*
+Rectangle2D.Double woodRect = new Rectangle2D.Double(wood.getX(), wood.getY(), wood.getWidth(), wood.getHeight());
+                            Line2D top = new Line2D.Double(sprite.getX(), sprite.getY(), sprite.getX() + sprite.getWidth(), sprite.getY());
+                            Line2D bottom = new Line2D.Double(sprite.getX(), sprite.getY() + sprite.getHeight(), sprite.getX() + sprite.getWidth(), sprite.getY() + sprite.getHeight());
+                            Line2D left = new Line2D.Double(sprite.getX(), sprite.getY(), sprite.getX(), sprite.getY() + sprite.getHeight());
+                            Line2D right = new Line2D.Double(sprite.getX() + sprite.getWidth(), sprite.getY(), sprite.getX() + sprite.getWidth(), sprite.getY() + sprite.getHeight());
+                            if (woodRect.intersectsLine(top)) {
+                                if (woodRect.intersectsLine(left)) {
+                                    if (Math.abs(woodRect.getMaxX() - sprite.getX()) < Math.abs(woodRect.getMaxY() - sprite.getY())) {
+                                        sprite.setX((int) woodRect.getMaxX());
+                                    } else {
+                                        sprite.setY((int) woodRect.getMaxY());
+                                    }
+                                } else if (woodRect.intersectsLine(right)) {
+                                    if (Math.abs(woodRect.getMinX() - sprite.getX() - sprite.getWidth()) < Math.abs(woodRect.getMaxY() - sprite.getY())) {
+                                        sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
+                                    } else {
+                                        sprite.setY((int) woodRect.getMaxY());
+                                    }
+                                } else {
+                                    sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
+                                }
+                            } else if (woodRect.intersectsLine(bottom)) {
+                                if (woodRect.intersectsLine(left)) {
+                                    if (Math.abs(woodRect.getMaxX() - sprite.getX()) < Math.abs(woodRect.getMinY() - sprite.getY() - sprite.getHeight())) {
+                                        sprite.setX((int) woodRect.getMaxX());
+                                    } else {
+                                        sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
+                                    }
+                                } else if (woodRect.intersectsLine(right)) {
+                                    if (Math.abs(woodRect.getMinX() - sprite.getX() - sprite.getWidth()) < Math.abs(woodRect.getMinY() - sprite.getY() - sprite.getHeight())) {
+                                        sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
+                                    } else {
+                                        sprite.setY((int) woodRect.getMinY() - sprite.getHeight());
+                                    }
+                                } else {
+                                    sprite.setY((int) woodRect.getMaxY());
+                                }
+                            } else if (woodRect.intersectsLine(left)) {
+                                sprite.setX((int) woodRect.getMaxX());
+                            } else if (woodRect.intersectsLine(right)) {
+                                sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
+                            }
+                        }
+ */

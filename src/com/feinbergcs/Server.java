@@ -14,6 +14,9 @@ public class Server {
         double lastTime = System.currentTimeMillis();
         while(true) {
             String message = messages.take();
+            double delta = System.currentTimeMillis() - lastTime;
+            lastTime = System.currentTimeMillis();
+            double time = System.currentTimeMillis();
             System.out.println("Rec:" + message);
                 String[] split = message.split(",");
                 for(int j = 0; j < l.sprites.size(); j++) {
@@ -38,11 +41,8 @@ public class Server {
                         }
                     }
                 }
-                double delta = System.currentTimeMillis() - lastTime;
-                lastTime = System.currentTimeMillis();
-                double time = System.currentTimeMillis();
                 l.sprites.forEach((s) -> {
-                    if(!(s instanceof Player)) s.step(delta);
+                    if(!s.image.contains("player")) s.step(delta);
                 });//TODO delta time?
 
                 StringBuilder messageBuilder = new StringBuilder();
