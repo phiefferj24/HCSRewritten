@@ -44,7 +44,7 @@ public class Server {
         for(int i = 1000; i < 9500; i+=Math.random()*2900+100)
             for(int j = 1000; j < 9500; j+=Math.random()*2900+400) {
                 numZombs++;
-                l.sprites.add(new Zombie((int)(i+Math.random()*120), (int)(j+Math.random()*120), 100, 100,"/zombie.png"));
+                l.sprites.add(new Zombie((int)(i+Math.random()*120), (int)(j+Math.random()*120), (int)(100+Math.random()*300), (int)(j+Math.random()*300),"/zombie.png"));
             }
 
         double lastTime = System.currentTimeMillis();

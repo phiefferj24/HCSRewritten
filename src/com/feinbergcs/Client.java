@@ -19,7 +19,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class Client {
 
     // COSTS
-
+    public static boolean died=false;
     public static final double WALL_COST = 50;
     public static final double TURRET_COST = 100;
 
@@ -77,6 +77,26 @@ public class Client {
                 for (int i = 0; i < client.sprites.size() && p != null; i++) {
                     Sprite sprite = client.sprites.get(i);
                     //System.out.println("outside the for: " + sprites.get(i).getImage());
+                    if(sprite.getId().equals(Client.playerID))
+                    {
+                        if(died)
+                        {
+                            //TODO: FIX THIS THING
+                            g.setColor(new Color(255, 255, 255));
+                            g.fillRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+                            g.setFont(new Font("Arial", Font.BOLD, 100));
+                            String dead = "YOU HAVE DIED! Final Score: " + money;
+                            g.drawString(dead, (1280/2), (720/2));
+                            try {
+                                Thread.sleep(10000);
+                            }
+                            catch (Exception e){
+                                throw new RuntimeException("died");
+                            }
+                            System.exit(0);
+                            return;
+                        }
+                    }
                     double playerCX = client.sprites.get(0).getX()+client.sprites.get(0).getWidth()/2;
                     double playerCY = client.sprites.get(0).getY()+client.sprites.get(0).getHeight()/2;
                     double cx = client.sprites.get(i).getX()+client.sprites.get(0).getWidth()/2;
@@ -250,6 +270,7 @@ public class Client {
             StringBuilder messageBuilder = new StringBuilder();
             Player playergot = client.getPlayer();
             if(playergot != null) {
+
                 double xdel = 0;
                 double ydel = 0;
                 if(Client.downKeys[KeyEvent.VK_W]) {
@@ -363,6 +384,10 @@ public class Client {
         String money = "Money: $" + String.format("%.2f", Client.money);
         g.drawString(money, WINDOW_WIDTH - metrics.stringWidth(money) - 10, minimapSize + FONT_SIZE + 45);
         String health = "Health: " + player.getHealth();
+        if(player.getHealth()<=0)
+        {
+            died=true;
+        }
         g.drawString(health, WINDOW_WIDTH - metrics.stringWidth(health) - 10, minimapSize + FONT_SIZE + 70);
         String ammo = "Ammo: " + (int)Client.ammo;
         g.drawString(ammo, WINDOW_WIDTH - metrics.stringWidth(ammo) - 10, minimapSize + FONT_SIZE + 95);
@@ -463,7 +488,7 @@ public class Client {
             sprite.setX((int) woodRect.getMinX() - sprite.getWidth());
         }
         if ((playerCurrX != ((Player) sprite).getX() || playerCurrY != ((Player) sprite).getY()) && wood.getImage().contains("zombie")) {
-            ((Player)sprite).setHealth(((Player)sprite).getHealth()-10);
+            ((Player)sprite).setHealth(((Player)sprite).getHealth()-1);
         }
     }
 
