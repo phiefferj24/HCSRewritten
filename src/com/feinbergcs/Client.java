@@ -112,9 +112,8 @@ public class Client {
                 client.drawMinimap(g, 10000, 10000);
 
 
-                if(shop)
-                    drawShop(g);
-            client.drawMinimap(g, MAP_WIDTH, MAP_HEIGHT);
+                if(shop) drawShop(g);
+                else client.drawMinimap(g, MAP_WIDTH, MAP_HEIGHT);
             }
 
             @Override
