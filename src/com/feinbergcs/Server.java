@@ -9,54 +9,75 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class Server {
     public static LinkedBlockingQueue<String> messages = new LinkedBlockingQueue<>();
     public static int ppl = 0;
+    public static final int WORLD_WIDTH = 10000;
+    public static final int WORLD_HEIGHT = 10000;
     public static void main(String[] args) throws InterruptedException {
         Listener l = new Listener(9001);
         l.start();
         double lastTime = System.currentTimeMillis();
         int reccount = 0;
+        ArrayList<String> sentPlayers = new ArrayList<>();
         while(true) {
             String message = messages.take();
             reccount++;
             double delta = System.currentTimeMillis() - lastTime;
             lastTime = System.currentTimeMillis();
-            double time = System.currentTimeMillis();
-            System.out.println("Rec:" + message);
-            String[] split = message.split(",");
-            for(int j = 0; j < l.sprites.size(); j++) {
-                Sprite sprite = l.sprites.get(j);
-                for (int i = 0; i < split.length - 1; i++) {
-                    if(split[i].contains(sprite.getId())) {
-                        sprite.updateToString(split[i]);
-                        split[i] = "";
+            if(!message.equals("disconnected")) {
+                double time = System.currentTimeMillis();
+                String[] split = message.split(",");
+                for (int j = 0; j < l.sprites.size(); j++) {
+                    Sprite sprite = l.sprites.get(j);
+                    for (int i = 0; i < split.length - 1; i++) {
+                        if (split[i].contains(sprite.getId())) {
+                            sprite.updateToString(split[i]);
+                            split[i] = "";
+                        }
                     }
                 }
-            }
-            for(int i = 0; i < split.length - 1; i++) {
-                if(!split[i].equals("")) {
-                    if(split[i].contains("player")) {
-                        l.sprites.add(new Player(split[i]));
-                    } else if(split[i].contains("bullet")) {
-                        l.sprites.add(new Bullet(split[i]));
-                    } else if(split[i].contains("tree")) {
-                        l.sprites.add(new Tree(split[i]));
-                    } else if(split[i].contains("zombie")) {
-                        l.sprites.add(new Zombie(split[i]));
+                for (int i = 0; i < split.length - 1; i++) {
+                    if (!split[i].equals("")) {
+                        if (split[i].contains("player")) {
+                            l.sprites.add(new Player(split[i]));
+                            sentPlayers.add(l.sprites.get(l.sprites.size() - 1).getId());
+                        } else if (split[i].contains("bullet")) {
+                            l.sprites.add(new Bullet(split[i]));
+                        } else if (split[i].contains("tree")) {
+                            l.sprites.add(new Tree(split[i]));
+                        } else if (split[i].contains("zombie")) {
+                            l.sprites.add(new Zombie(split[i]));
+                        }
                     }
                 }
             }
             if(reccount >= ppl) {
-                l.sprites.forEach((s) -> {
-                    if(!s.image.contains("player")) s.step(delta);
-                });//TODO delta time?
+                for(int i = 0; i < l.sprites.size(); i++) {
+                    Sprite s = l.sprites.get(i);
+                    if(!s.image.contains("player")) {
+                        s.step(delta);
+                        if(s.image.contains("bullet")) {
+                            if(s.x < 0 || s.x > WORLD_WIDTH || s.y < 0 || s.y > WORLD_HEIGHT) {
+                                l.sprites.remove(s);
+                                i--;
+                            }
+                        }
+                    }
+                }//TODO delta time?
 
                 StringBuilder messageBuilder = new StringBuilder();
                 for(int i = 0; i < l.sprites.size(); i++) {
                     messageBuilder.append(l.sprites.get(i).toString()).append(",");
                 }
-                messageBuilder.append(time);
+                messageBuilder.append(0);
                 message = messageBuilder.toString();
                 l.send(message);
+                for(int i = 0; i < l.sprites.size(); i++) {
+                    if(l.sprites.get(i).image.contains("player") && !sentPlayers.contains(l.sprites.get(i).getId())) {
+                        l.sprites.remove(i);
+                        i--;
+                    }
+                }
                 reccount = 0;
+                sentPlayers = new ArrayList<>();
             }
         }
     }
@@ -127,6 +148,8 @@ public class Server {
                     listener.onMessage(input);
                 }
             } catch (IOException e) {
+                messages.add("disconnected");
+                ppl--;
                 e.printStackTrace();
             } finally {
                 try {

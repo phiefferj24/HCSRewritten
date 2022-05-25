@@ -62,6 +62,10 @@ public class Client {
             @Override
             public void keyPressed(int key) {
                 downKeys[key] = true;
+                if(key == KeyEvent.VK_SPACE) {
+                    client.onRight = !client.onRight;
+                    client.spritesToAdd.add(new Bullet(client.getPlayer(), 1, 1, 1, client.onRight, 8));
+                }
             }
 
             @Override
@@ -74,8 +78,7 @@ public class Client {
                 //play(new File(Client.class.getResource("/hit.wav").getPath()),false);
                 clickX = x;
                 clickY = y;
-                client.onRight = !client.onRight;
-                client.spritesToAdd.add(new Bullet(client.getPlayer(), 1, 1, 1, client.onRight, 8));
+
             }
         });
         Thread t = new Thread(d);
@@ -125,6 +128,15 @@ public class Client {
                     }
                 }
             }
+            for(int i = 0; i < client.sprites.size(); i++) {
+                Sprite sprite = client.sprites.get(i);
+                if(!sprite.getId().equals(Client.playerID)) {
+                    if(!message.contains(sprite.getId())) {
+                        client.sprites.remove(sprite);
+                        i--;
+                    }
+                }
+            }
             time = System.currentTimeMillis();
             mouseX = (int) d.getMouseX();
             mouseY = (int) d.getMouseY();
@@ -150,7 +162,7 @@ public class Client {
                 playergot.step(delta);
                 for(int i = 0; i < client.sprites.size(); i++) {
                     Sprite sprite = client.sprites.get(i);
-                    if(sprite.getId().equals(playergot.getId())) continue;
+                    if(sprite.getId().equals(playergot.getId()) || sprite.getImage().contains("bullet")) continue;
                     client.collide(playergot, sprite);
                 }
                 messageBuilder.append(playergot.toString()).append(",");
